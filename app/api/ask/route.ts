@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { anthropic } from "@/lib/anthropic";
+import { getDashboardData } from "@/lib/fetchers";
 import { askSystemPrompt } from "@/lib/prompts";
 
 export async function POST(req: NextRequest) {
@@ -8,10 +9,12 @@ export async function POST(req: NextRequest) {
     return new Response("Missing question", { status: 400 });
   }
 
+  const data = await getDashboardData();
+
   const stream = anthropic.messages.stream({
     model: process.env.ASK_MODEL ?? "claude-sonnet-4-6",
     max_tokens: 800,
-    system: askSystemPrompt(),
+    system: askSystemPrompt(data),
     messages: [{ role: "user", content: question }],
   });
 

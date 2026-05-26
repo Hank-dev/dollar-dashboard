@@ -12,7 +12,7 @@ import {
   type ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { YIELD_CURVE } from "@/lib/metrics";
+import type { CurvePoint } from "@/lib/metrics";
 
 ChartJS.register(
   CategoryScale,
@@ -42,6 +42,8 @@ const valueLabelPlugin = {
     const { ctx } = chart;
     const meta = chart.getDatasetMeta(0);
     if (!meta) return;
+    const values = chart.data.datasets[0]?.data as number[] | undefined;
+    if (!values) return;
     ctx.save();
     ctx.font = "500 11px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
@@ -49,8 +51,8 @@ const valueLabelPlugin = {
     ctx.fillStyle =
       (chart.options as { _labelColor?: string })._labelColor ?? "#1c1917";
     meta.data.forEach((point, i) => {
-      const y = YIELD_CURVE[i]?.y;
-      if (y === undefined) return;
+      const y = values[i];
+      if (typeof y !== "number") return;
       const { x, y: py } = point.getProps(["x", "y"], true) as {
         x: number;
         y: number;
@@ -61,7 +63,7 @@ const valueLabelPlugin = {
   },
 };
 
-export default function YieldCurveChart() {
+export default function YieldCurveChart({ points }: { points: CurvePoint[] }) {
   const dark = useDarkMode();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -89,10 +91,10 @@ export default function YieldCurveChart() {
 
   const data = useMemo(
     () => ({
-      labels: YIELD_CURVE.map((p) => p.m),
+      labels: points.map((p) => p.m),
       datasets: [
         {
-          data: YIELD_CURVE.map((p) => p.y),
+          data: points.map((p) => p.y),
           borderColor: colors.line,
           backgroundColor: (ctx: { chart: ChartJS }) => {
             const chart = ctx.chart;
@@ -112,8 +114,20 @@ export default function YieldCurveChart() {
         },
       ],
     }),
-    [colors],
+    [colors, points],
   );
+
+  const { yMin, yMax } = useMemo(() => {
+    const ys = points.map((p) => p.y);
+    if (ys.length === 0) return { yMin: 0, yMax: 6 };
+    const lo = Math.min(...ys);
+    const hi = Math.max(...ys);
+    const pad = Math.max(0.5, (hi - lo) * 0.4);
+    return {
+      yMin: Math.floor((lo - pad) * 2) / 2,
+      yMax: Math.ceil((hi + pad) * 2) / 2,
+    };
+  }, [points]);
 
   const options: ChartOptions<"line"> & { _labelColor?: string } = useMemo(
     () => ({
@@ -146,8 +160,8 @@ export default function YieldCurveChart() {
           ticks: { color: colors.tick, font: { size: 11 } },
         },
         y: {
-          min: 3.5,
-          max: 5.5,
+          min: yMin,
+          max: yMax,
           grid: { color: colors.grid, drawTicks: false },
           border: { display: false },
           ticks: {
@@ -159,15 +173,19 @@ export default function YieldCurveChart() {
         },
       },
     }),
-    [colors, dark],
+    [colors, dark, yMin, yMax],
   );
+
+  const ariaLabel = `US Treasury yield curve: ${points
+    .map((p) => `${p.m} ${p.y.toFixed(2)}%`)
+    .join(", ")}.`;
 
   return (
     <div
       ref={containerRef}
       style={{ height: 220 }}
       role="img"
-      aria-label="US Treasury yield curve: 2-year 4.13%, 10-year 4.56%, 30-year 5.06%. Curve is steep at the long end."
+      aria-label={ariaLabel}
     >
       <Line data={data} options={options} plugins={[valueLabelPlugin]} />
     </div>

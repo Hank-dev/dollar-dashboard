@@ -3,10 +3,9 @@
 import { useState } from "react";
 import {
   GROUPS,
-  METRICS,
-  SNAPSHOT_DATE,
   STATUS_COLOR,
   STATUS_LABEL,
+  type DashboardData,
   type Metric,
   type Status,
 } from "@/lib/metrics";
@@ -15,15 +14,20 @@ import YieldCurveChart from "./YieldCurveChart";
 import ExplainDrawer from "./ExplainDrawer";
 import AskBox from "./AskBox";
 
-const DISPLAY_DATE = new Date(SNAPSHOT_DATE + "T00:00:00Z").toLocaleDateString(
-  "en-GB",
-  { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" },
-);
-
 const STATUS_ORDER: Status[] = ["calm", "neutral", "elevated", "stressed"];
 
-export default function Dashboard() {
+const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export default function Dashboard({ data }: { data: DashboardData }) {
   const [openMetric, setOpenMetric] = useState<Metric | null>(null);
+  const displayDate = DATE_FMT.format(
+    new Date(data.snapshotDate + "T00:00:00Z"),
+  );
 
   return (
     <main className="mx-auto max-w-[720px] px-5 py-10 sm:py-12">
@@ -33,7 +37,7 @@ export default function Dashboard() {
           Dollar &amp; global financial system monitor
         </h1>
         <p className="shrink-0 text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
-          Close · {DISPLAY_DATE}
+          Close · {displayDate}
         </p>
       </header>
 
@@ -75,7 +79,7 @@ export default function Dashboard() {
             key={g.id}
             title={g.title}
             icon={g.icon}
-            metrics={METRICS.filter((m) => m.group === g.id)}
+            metrics={data.metrics.filter((m) => m.group === g.id)}
             onSelect={setOpenMetric}
           />
         ))}
@@ -88,7 +92,7 @@ export default function Dashboard() {
           US Treasury yield curve
         </h2>
         <div className="border border-[var(--border)] bg-[var(--bg-surface)] p-4" style={{ borderRadius: 8 }}>
-          <YieldCurveChart />
+          <YieldCurveChart points={data.yieldCurve} />
         </div>
       </section>
 
