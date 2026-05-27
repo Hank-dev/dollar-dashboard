@@ -44,12 +44,28 @@ function fmtPct(v: number | null): string {
   return `${sign}${(v * 100).toFixed(1)}%`;
 }
 
+function valuesToPath(values: number[], w: number, h: number, pad = 2): { line: string; area: string } {
+  if (values.length < 2) return { line: "", area: "" };
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const points = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * w;
+    const y = pad + (1 - (v - min) / range) * (h - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const line = `M${points.join(" L")}`;
+  const area = `${line} L${w},${h} L0,${h} Z`;
+  return { line, area };
+}
+
 export function HomeDashCards() {
   const [btc, setBtc] = useState<BtcData>({ price: null, ath: null, daysSinceAth: null, daysSinceLastHalving: null, powerLawZ: null, change24h: null });
   const [dollar, setDollar] = useState<DollarData>({ dxy: null, dxyDelta: null, vix: null, hySpread: null, move: null });
   const [fng, setFng] = useState<FngData>({ value: null, label: null });
   const [ai, setAi] = useState<AiData>({ topModel: null, topIndex: null, cheapestModel: null, cheapestCost: null, modelCount: 0 });
   const [livePrice, setLivePrice] = useState<number | null>(null);
+  const [sparks, setSparks] = useState<{ btc: number[]; dxy: number[]; fng: number[] }>({ btc: [], dxy: [], fng: [] });
 
   useEffect(() => {
     fetch("/api/price-history")
@@ -117,6 +133,11 @@ export function HomeDashCards() {
         });
       })
       .catch(() => {});
+
+    fetch("/api/home-sparklines")
+      .then((r) => r.json())
+      .then((d) => setSparks({ btc: d.btc ?? [], dxy: d.dxy ?? [], fng: d.fng ?? [] }))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -141,7 +162,6 @@ export function HomeDashCards() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
-      {/* BTC Card */}
       <DashCard
         href="/btc"
         idx="01"
@@ -150,6 +170,8 @@ export function HomeDashCards() {
         route="/btc"
         accentVar="var(--dash-btc)"
         sparkColor="oklch(0.82 0.14 80)"
+        sparkData={sparks.btc}
+        sparkLabel="BTC · 90d"
         heroValue={displayPrice ? `$${fmtNum(displayPrice)}` : "$—"}
         heroMeta={btc.change24h != null ? fmtPct(btc.change24h) + " · 24h" : "· 24h"}
         heroMetaDir={btc.change24h != null ? (btc.change24h >= 0 ? "up" : "down") : undefined}
@@ -162,7 +184,6 @@ export function HomeDashCards() {
         summary="Power law, regime detection, ETF flows, funding rates, market emotion, and AI interpretation."
       />
 
-      {/* Dollar Card */}
       <DashCard
         href="/dollar"
         idx="02"
@@ -171,6 +192,8 @@ export function HomeDashCards() {
         route="/dollar"
         accentVar="var(--dash-dollar)"
         sparkColor="oklch(0.73 0.14 245)"
+        sparkData={sparks.dxy}
+        sparkLabel="DXY · 90d"
         heroValue={dollar.dxy != null ? fmtNum(dollar.dxy, 2) : "—"}
         heroMeta={dollar.dxyDelta != null ? `${dollar.dxyDelta > 0 ? "+" : ""}${dollar.dxyDelta.toFixed(2)} · DXY 30d` : "· DXY"}
         heroMetaDir={dollar.dxyDelta != null ? (dollar.dxyDelta > 0 ? "up" : "down") : undefined}
@@ -183,7 +206,6 @@ export function HomeDashCards() {
         summary="US Treasury yields, dollar, VIX, carry trades, and risk-haven metrics with Claude-powered explanations."
       />
 
-      {/* AI Card */}
       <DashCard
         href="/ai"
         idx="03"
@@ -192,6 +214,8 @@ export function HomeDashCards() {
         route="/ai"
         accentVar="var(--dash-ai)"
         sparkColor="oklch(0.74 0.16 295)"
+        sparkData={sparks.fng}
+        sparkLabel="F&G · 90d"
         heroValue={ai.topModel ?? "—"}
         heroMeta={ai.topIndex != null ? `index ${ai.topIndex.toFixed(1)} · #1 frontier` : "· frontier models"}
         stats={[
@@ -207,18 +231,8 @@ export function HomeDashCards() {
 }
 
 function DashCard({
-  href,
-  idx,
-  name,
-  nameAccent,
-  route,
-  accentVar,
-  sparkColor,
-  heroValue,
-  heroMeta,
-  heroMetaDir,
-  stats,
-  summary,
+  href, idx, name, nameAccent, route, accentVar, sparkColor,
+  sparkData, sparkLabel, heroValue, heroMeta, heroMetaDir, stats, summary,
 }: {
   href: string;
   idx: string;
@@ -227,12 +241,18 @@ function DashCard({
   route: string;
   accentVar: string;
   sparkColor: string;
+  sparkData: number[];
+  sparkLabel: string;
   heroValue: string;
   heroMeta: string;
   heroMetaDir?: "up" | "down";
   stats: { label: string; value: string; dir?: "up" | "down" | "warn" }[];
   summary: string;
 }) {
+  const W = 140, H = 36;
+  const { line, area } = valuesToPath(sparkData, W, H);
+  const hasSparkData = sparkData.length >= 2;
+
   return (
     <Link
       href={href}
@@ -265,16 +285,24 @@ function DashCard({
           </div>
         </div>
         <div className="w-[140px]">
-          <div className="mono text-[9.5px] tracking-[0.14em] uppercase text-[var(--text-tertiary)] text-right mb-1">90d</div>
-          <svg className="block w-full h-7" viewBox="0 0 140 28" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id={`grad-${idx}`} x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor={sparkColor} stopOpacity={0.4} />
-                <stop offset="100%" stopColor={sparkColor} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <path d="M0,22 L14,20 L28,21 L42,18 L56,16 L70,14 L84,12 L98,10 L112,8 L126,6 L140,4 L140,28 L0,28 Z" fill={`url(#grad-${idx})`} />
-            <path d="M0,22 L14,20 L28,21 L42,18 L56,16 L70,14 L84,12 L98,10 L112,8 L126,6 L140,4" fill="none" stroke={sparkColor} strokeWidth={1.2} />
+          <div className="mono text-[9.5px] tracking-[0.14em] uppercase text-[var(--text-tertiary)] text-right mb-1">
+            {sparkLabel}
+          </div>
+          <svg className="block w-full h-9" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+            {hasSparkData ? (
+              <>
+                <defs>
+                  <linearGradient id={`grad-${idx}`} x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor={sparkColor} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={sparkColor} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <path d={area} fill={`url(#grad-${idx})`} />
+                <path d={line} fill="none" stroke={sparkColor} strokeWidth={1.2} />
+              </>
+            ) : (
+              <text x="70" y="20" textAnchor="middle" fill="var(--text-tertiary)" fontSize="9" fontFamily="var(--font-mono)">loading</text>
+            )}
           </svg>
         </div>
       </div>

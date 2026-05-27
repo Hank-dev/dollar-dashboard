@@ -5,6 +5,7 @@ import {
   CategoryScale,
   Chart as ChartJS,
   Filler,
+  Legend,
   LinearScale,
   LineElement,
   PointElement,
@@ -21,24 +22,14 @@ ChartJS.register(
   PointElement,
   Tooltip,
   Filler,
+  Legend,
 );
 
-function useDarkMode() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const timeout = window.setTimeout(() => {
-      setDark(mq.matches);
-    }, 0);
-    const onChange = (e: MediaQueryListEvent) => setDark(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => {
-      window.clearTimeout(timeout);
-      mq.removeEventListener("change", onChange);
-    };
-  }, []);
-  return dark;
+interface CurveHistory {
+  current: CurvePoint[];
+  past30: CurvePoint[];
+  past90: CurvePoint[];
+  dates: { current: string; past30: string; past90: string };
 }
 
 const valueLabelPlugin = {
@@ -50,11 +41,11 @@ const valueLabelPlugin = {
     const values = chart.data.datasets[0]?.data as number[] | undefined;
     if (!values) return;
     ctx.save();
-    ctx.font = "500 11px system-ui, -apple-system, 'Segoe UI', sans-serif";
+    ctx.font = "500 11px var(--font-mono), system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     ctx.fillStyle =
-      (chart.options as { _labelColor?: string })._labelColor ?? "#1c1917";
+      (chart.options as { _labelColor?: string })._labelColor ?? "#e5e8ef";
     meta.data.forEach((point, i) => {
       const y = values[i];
       if (typeof y !== "number") return;
@@ -69,61 +60,64 @@ const valueLabelPlugin = {
 };
 
 export default function YieldCurveChart({ points }: { points: CurvePoint[] }) {
-  const dark = useDarkMode();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [history, setHistory] = useState<CurveHistory | null>(null);
+  const [showPeriod, setShowPeriod] = useState<"30d" | "90d">("30d");
 
-  const colors = useMemo(() => {
-    return dark
-      ? {
-          line: "#f7b955",
-          point: "#f7b955",
-          grid: "#26262a",
-          tick: "#a8a29e",
-          label: "#e7e5e4",
-          fillFrom: "rgba(247, 185, 85, 0.18)",
-          fillTo: "rgba(247, 185, 85, 0.0)",
-        }
-      : {
-          line: "#c2780f",
-          point: "#c2780f",
-          grid: "#e7e5e4",
-          tick: "#57534e",
-          label: "#1c1917",
-          fillFrom: "rgba(194, 120, 15, 0.12)",
-          fillTo: "rgba(194, 120, 15, 0.0)",
-        };
-  }, [dark]);
+  useEffect(() => {
+    fetch("/api/yield-curve-history")
+      .then((r) => r.json())
+      .then((d) => setHistory(d))
+      .catch(() => {});
+  }, []);
+
+  const currentCurve = history?.current ?? points;
+  const pastCurve = showPeriod === "30d" ? history?.past30 : history?.past90;
+  const pastDate = showPeriod === "30d" ? history?.dates.past30 : history?.dates.past90;
+
+  const labels = currentCurve.map((p) => p.m);
 
   const data = useMemo(
     () => ({
-      labels: points.map((p) => p.m),
+      labels,
       datasets: [
         {
-          data: points.map((p) => p.y),
-          borderColor: colors.line,
-          backgroundColor: (ctx: { chart: ChartJS }) => {
-            const chart = ctx.chart;
-            const { ctx: c, chartArea } = chart;
-            if (!chartArea) return colors.fillFrom;
-            const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, colors.fillFrom);
-            gradient.addColorStop(1, colors.fillTo);
-            return gradient;
-          },
-          borderWidth: 1.75,
+          label: "Current",
+          data: currentCurve.map((p) => p.y),
+          borderColor: "oklch(0.73 0.14 245)",
+          backgroundColor: "rgba(100, 140, 220, 0.08)",
+          borderWidth: 2,
           pointRadius: 4,
-          pointBackgroundColor: colors.point,
-          pointBorderColor: colors.point,
+          pointBackgroundColor: "oklch(0.73 0.14 245)",
+          pointBorderColor: "oklch(0.73 0.14 245)",
           tension: 0.25,
           fill: true,
         },
+        ...(pastCurve && pastCurve.length > 0
+          ? [
+              {
+                label: pastDate ? `${showPeriod} ago (${pastDate})` : `${showPeriod} ago`,
+                data: pastCurve.map((p) => p.y),
+                borderColor: "var(--text-tertiary)",
+                backgroundColor: "transparent",
+                borderWidth: 1.2,
+                borderDash: [4, 3],
+                pointRadius: 2.5,
+                pointBackgroundColor: "var(--text-tertiary)",
+                pointBorderColor: "var(--text-tertiary)",
+                tension: 0.25,
+                fill: false,
+              },
+            ]
+          : []),
       ],
     }),
-    [colors, points],
+    [currentCurve, pastCurve, pastDate, labels, showPeriod],
   );
 
   const { yMin, yMax } = useMemo(() => {
-    const ys = points.map((p) => p.y);
+    const allPoints = [...currentCurve, ...(pastCurve ?? [])];
+    const ys = allPoints.map((p) => p.y);
     if (ys.length === 0) return { yMin: 0, yMax: 6 };
     const lo = Math.min(...ys);
     const hi = Math.max(...ys);
@@ -132,45 +126,55 @@ export default function YieldCurveChart({ points }: { points: CurvePoint[] }) {
       yMin: Math.floor((lo - pad) * 2) / 2,
       yMax: Math.ceil((hi + pad) * 2) / 2,
     };
-  }, [points]);
+  }, [currentCurve, pastCurve]);
 
   const options: ChartOptions<"line"> & { _labelColor?: string } = useMemo(
     () => ({
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
-      _labelColor: colors.label,
+      _labelColor: "#e5e8ef",
       layout: { padding: { top: 22, right: 12, bottom: 4, left: 4 } },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: pastCurve != null && pastCurve.length > 0,
+          position: "bottom" as const,
+          labels: {
+            boxWidth: 12,
+            boxHeight: 2,
+            color: "#828a98",
+            font: { size: 11 },
+            padding: 16,
+          },
+        },
         tooltip: {
           enabled: true,
-          backgroundColor: dark ? "#141416" : "#ffffff",
-          titleColor: colors.label,
-          bodyColor: colors.label,
-          borderColor: colors.grid,
+          backgroundColor: "#0e1015",
+          titleColor: "#e5e8ef",
+          bodyColor: "#e5e8ef",
+          borderColor: "#1a1e26",
           borderWidth: 1,
-          displayColors: false,
+          displayColors: true,
           padding: 8,
           callbacks: {
             label: (ctx) =>
-              ctx.parsed.y != null ? `${ctx.parsed.y.toFixed(2)}%` : "",
+              ctx.parsed.y != null ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` : "",
           },
         },
       },
       scales: {
         x: {
-          grid: { color: colors.grid, drawTicks: false },
+          grid: { color: "#1a1e26", drawTicks: false },
           border: { display: false },
-          ticks: { color: colors.tick, font: { size: 11 } },
+          ticks: { color: "#828a98", font: { size: 11 } },
         },
         y: {
           min: yMin,
           max: yMax,
-          grid: { color: colors.grid, drawTicks: false },
+          grid: { color: "#1a1e26", drawTicks: false },
           border: { display: false },
           ticks: {
-            color: colors.tick,
+            color: "#828a98",
             font: { size: 11 },
             stepSize: 0.5,
             callback: (v: string | number) => `${Number(v).toFixed(1)}%`,
@@ -178,21 +182,40 @@ export default function YieldCurveChart({ points }: { points: CurvePoint[] }) {
         },
       },
     }),
-    [colors, dark, yMin, yMax],
+    [pastCurve, yMin, yMax],
   );
 
-  const ariaLabel = `US Treasury yield curve: ${points
-    .map((p) => `${p.m} ${p.y.toFixed(2)}%`)
-    .join(", ")}.`;
-
   return (
-    <div
-      ref={containerRef}
-      style={{ height: 220 }}
-      role="img"
-      aria-label={ariaLabel}
-    >
-      <Line data={data} options={options} plugins={[valueLabelPlugin]} />
+    <div>
+      {history && (
+        <div className="flex items-center gap-1 mb-3">
+          <span className="mono text-[10px] text-[var(--text-tertiary)] tracking-[0.1em] uppercase mr-2">
+            Compare:
+          </span>
+          {(["30d", "90d"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setShowPeriod(p)}
+              className={`mono text-[10.5px] px-1.5 py-0.5 rounded-sm cursor-pointer transition-colors ${
+                showPeriod === p
+                  ? "bg-[var(--bg-elevated)] text-[var(--text-primary)]"
+                  : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+              }`}
+              style={{ border: "none", background: showPeriod === p ? "var(--bg-elevated)" : "transparent" }}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+      <div
+        ref={containerRef}
+        style={{ height: 240 }}
+        role="img"
+        aria-label={`US Treasury yield curve: ${currentCurve.map((p) => `${p.m} ${p.y.toFixed(2)}%`).join(", ")}.`}
+      >
+        <Line data={data} options={options} plugins={[valueLabelPlugin]} />
+      </div>
     </div>
   );
 }
