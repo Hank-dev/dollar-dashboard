@@ -28,10 +28,15 @@ function useDarkMode() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setDark(mq.matches);
+    const timeout = window.setTimeout(() => {
+      setDark(mq.matches);
+    }, 0);
     const onChange = (e: MediaQueryListEvent) => setDark(e.matches);
     mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    return () => {
+      window.clearTimeout(timeout);
+      mq.removeEventListener("change", onChange);
+    };
   }, []);
   return dark;
 }

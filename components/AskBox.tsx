@@ -2,7 +2,15 @@
 
 import { useRef, useState } from "react";
 
-export default function AskBox() {
+export default function AskBox({
+  endpoint = "/api/ask",
+  placeholder = "e.g. Why does a steeper curve worry the bond market?",
+  snapshotNote = "grounded in the 22 May 2026 snapshot",
+}: {
+  endpoint?: string;
+  placeholder?: string;
+  snapshotNote?: string;
+}) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -21,7 +29,7 @@ export default function AskBox() {
     abortRef.current = controller;
 
     try {
-      const res = await fetch("/api/ask", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q }),
@@ -70,14 +78,14 @@ export default function AskBox() {
             }
           }}
           rows={3}
-          placeholder="e.g. Why does a steeper curve worry the bond market?"
+          placeholder={placeholder}
           className="w-full resize-y border border-[var(--border)] bg-[var(--bg-base)] px-3 py-2 text-[13.5px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[var(--border-strong)] focus:outline-none"
           style={{ borderRadius: 6 }}
           disabled={streaming}
         />
         <div className="flex items-center justify-between gap-3">
           <p className="text-[11px] text-[var(--text-tertiary)]">
-            ⌘/Ctrl + Enter to send · grounded in the 22 May 2026 snapshot
+            Cmd/Ctrl + Enter to send · {snapshotNote}
           </p>
           <div className="flex items-center gap-2">
             {streaming && (
@@ -96,7 +104,7 @@ export default function AskBox() {
               className="border border-[var(--border-strong)] bg-[var(--text-primary)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--bg-surface)] disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-secondary)]"
               style={{ borderRadius: 6 }}
             >
-              {streaming ? "Answering…" : "Ask"}
+              {streaming ? "Answering..." : "Ask"}
             </button>
           </div>
         </div>
@@ -113,7 +121,7 @@ export default function AskBox() {
           ) : (
             <p className="whitespace-pre-line text-[13.5px] leading-relaxed text-[var(--text-primary)]">
               {answer}
-              {streaming && <span className="ml-0.5 inline-block animate-pulse">▍</span>}
+              {streaming && <span className="ml-0.5 inline-block animate-pulse">|</span>}
             </p>
           )}
         </div>

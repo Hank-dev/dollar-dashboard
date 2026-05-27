@@ -51,7 +51,11 @@ export default function ExplainDrawer({
 
   // Trigger fetch when a new metric is opened
   useEffect(() => {
-    if (metric) fetchExplanation(metric);
+    if (!metric) return;
+    const timeout = window.setTimeout(() => {
+      fetchExplanation(metric);
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [metric, fetchExplanation]);
 
   // Escape to close + focus trap
