@@ -8,6 +8,7 @@ const TABS = [
   { href: "/btc", label: "BTC", idx: "01", cls: "btc" },
   { href: "/dollar", label: "DOLLAR", idx: "02", cls: "dollar" },
   { href: "/ai", label: "AI", idx: "03", cls: "ai" },
+  { href: "/nuclear", label: "NUCLEAR", idx: "04", cls: "nuclear" },
 ] as const;
 
 export function TopNav() {
@@ -61,6 +62,8 @@ export function TopNav() {
                         ? "var(--dash-dollar)"
                         : tab.cls === "ai"
                         ? "var(--dash-ai)"
+                        : tab.cls === "nuclear"
+                        ? "var(--dash-nuclear)"
                         : "var(--text-primary)",
                   }}
                 />

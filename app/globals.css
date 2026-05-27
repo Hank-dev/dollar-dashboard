@@ -40,6 +40,7 @@
   --dash-btc: var(--accent-amber);
   --dash-dollar: var(--accent-blue);
   --dash-ai: var(--accent-purple);
+  --dash-nuclear: var(--accent-cyan);
 
   /* radii */
   --r-0: 0px;

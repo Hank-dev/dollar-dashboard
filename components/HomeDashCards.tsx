@@ -33,6 +33,20 @@ interface AiData {
   modelCount: number;
 }
 
+interface NuclearData {
+  totalPublicMarketCapUsd: number | null;
+  weightedChangePercent: number | null;
+  proxySymbol: string | null;
+  proxyChangePercent: number | null;
+  quoteCount: number;
+}
+
+interface NuclearQuoteLite {
+  symbol: string;
+  changePercent: number | null;
+  marketCapUsd: number | null;
+}
+
 function fmtNum(v: number | null, decimals = 0): string {
   if (v == null) return "—";
   return v.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -42,6 +56,40 @@ function fmtPct(v: number | null): string {
   if (v == null) return "—";
   const sign = v >= 0 ? "+" : "";
   return `${sign}${(v * 100).toFixed(1)}%`;
+}
+
+function fmtPctPoints(v: number | null): string {
+  if (v == null) return "—";
+  const sign = v >= 0 ? "+" : "";
+  return `${sign}${v.toFixed(1)}%`;
+}
+
+function fmtUsdCompact(v: number | null): string {
+  if (v == null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(v);
+}
+
+function weightedChangePercent(quotes: NuclearQuoteLite[]): number | null {
+  let weighted = 0;
+  let totalCap = 0;
+  const fallback: number[] = [];
+
+  for (const quote of quotes) {
+    if (quote.changePercent == null) continue;
+    fallback.push(quote.changePercent);
+    if (quote.marketCapUsd == null) continue;
+    weighted += quote.changePercent * quote.marketCapUsd;
+    totalCap += quote.marketCapUsd;
+  }
+
+  if (totalCap > 0) return weighted / totalCap;
+  if (fallback.length === 0) return null;
+  return fallback.reduce((sum, value) => sum + value, 0) / fallback.length;
 }
 
 function valuesToPath(values: number[], w: number, h: number, pad = 2): { line: string; area: string } {
@@ -64,6 +112,13 @@ export function HomeDashCards() {
   const [dollar, setDollar] = useState<DollarData>({ dxy: null, dxyDelta: null, vix: null, hySpread: null, move: null });
   const [fng, setFng] = useState<FngData>({ value: null, label: null });
   const [ai, setAi] = useState<AiData>({ topModel: null, topIndex: null, cheapestModel: null, cheapestCost: null, modelCount: 0 });
+  const [nuclear, setNuclear] = useState<NuclearData>({
+    totalPublicMarketCapUsd: null,
+    weightedChangePercent: null,
+    proxySymbol: null,
+    proxyChangePercent: null,
+    quoteCount: 0,
+  });
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const [sparks, setSparks] = useState<{ btc: number[]; dxy: number[]; fng: number[] }>({ btc: [], dxy: [], fng: [] });
 
@@ -138,6 +193,22 @@ export function HomeDashCards() {
       .then((r) => r.json())
       .then((d) => setSparks({ btc: d.btc ?? [], dxy: d.dxy ?? [], fng: d.fng ?? [] }))
       .catch(() => {});
+
+    fetch("/api/nuclear/market")
+      .then((r) => r.json())
+      .then((d) => {
+        const publicEquities = (d.publicEquities ?? []) as NuclearQuoteLite[];
+        const uraniumProxies = (d.uraniumProxies ?? []) as NuclearQuoteLite[];
+        const proxy = uraniumProxies[0];
+        setNuclear({
+          totalPublicMarketCapUsd: d.totalPublicMarketCapUsd ?? null,
+          weightedChangePercent: weightedChangePercent(publicEquities),
+          proxySymbol: proxy?.symbol ?? null,
+          proxyChangePercent: proxy?.changePercent ?? null,
+          quoteCount: publicEquities.length,
+        });
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -160,8 +231,10 @@ export function HomeDashCards() {
       ? dollar.vix > 25 ? "stressed" : dollar.vix > 18 ? "elevated" : dollar.vix < 14 ? "calm" : "neutral"
       : "—";
 
+  const nuclearSpark = [42, 43, 44, 47, 51, 55, 58, 62, 67, 71, 78];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 p-5">
       <DashCard
         href="/btc"
         idx="01"
@@ -225,6 +298,53 @@ export function HomeDashCards() {
           { label: "live models", value: ai.modelCount > 0 ? String(ai.modelCount) : "—" },
         ]}
         summary="Frontier model intelligence vs cost, public market leaders, private lab valuations, and technology radar."
+      />
+
+      <DashCard
+        href="/nuclear"
+        idx="04"
+        name="Nuclear"
+        nameAccent="Energy"
+        route="/nuclear"
+        accentVar="var(--dash-nuclear)"
+        sparkColor="oklch(0.82 0.11 200)"
+        sparkData={nuclearSpark}
+        sparkLabel="buildout · signal"
+        heroValue={
+          nuclear.totalPublicMarketCapUsd != null
+            ? fmtUsdCompact(nuclear.totalPublicMarketCapUsd)
+            : "78 GW"
+        }
+        heroMeta={
+          nuclear.totalPublicMarketCapUsd != null
+            ? "tracked public cap"
+            : "under construction"
+        }
+        stats={[
+          {
+            label: "public move",
+            value: fmtPctPoints(nuclear.weightedChangePercent),
+            dir:
+              nuclear.weightedChangePercent == null
+                ? undefined
+                : nuclear.weightedChangePercent >= 0
+                ? "up"
+                : "down",
+          },
+          {
+            label: nuclear.proxySymbol ?? "uranium proxy",
+            value: fmtPctPoints(nuclear.proxyChangePercent),
+            dir:
+              nuclear.proxyChangePercent == null
+                ? undefined
+                : nuclear.proxyChangePercent >= 0
+                ? "up"
+                : "down",
+          },
+          { label: "live tickers", value: nuclear.quoteCount ? String(nuclear.quoteCount) : "—" },
+          { label: "HALEU", value: "constrained", dir: "warn" },
+        ]}
+        summary="Nuclear fleets, uranium, HALEU, SMRs, data-center PPAs, restarts, and advanced reactor readiness."
       />
     </div>
   );

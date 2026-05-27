@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Market Monitor",
-  description: "Quantitative dashboards for crypto, macro, and AI.",
+  description: "Quantitative dashboards for crypto, macro, AI, and nuclear energy.",
 };
 
 export default function RootLayout({
