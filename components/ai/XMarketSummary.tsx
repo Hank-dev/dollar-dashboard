@@ -127,68 +127,26 @@ export default function XMarketSummary() {
               />
             </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
-              <div className="grid gap-3">
-                {sections.map((section) => (
-                  <section
-                    key={section.title}
-                    className="border border-[var(--border)] bg-[var(--bg-base)] p-3"
-                    style={{ borderRadius: 6 }}
-                  >
-                    <h4 className="mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--accent-purple)]">
-                      {section.title}
-                    </h4>
-                    <ul className="mt-2 space-y-2 text-[12.5px] leading-relaxed text-[var(--text-primary)]">
-                      {section.items.map((item) => (
-                        <li key={item} className="flex gap-2">
-                          <span className="mt-[0.65em] h-1 w-1 shrink-0 rounded-full bg-[var(--accent-purple)]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ))}
-              </div>
-
-              <aside
-                className="border border-[var(--border)] bg-[var(--bg-base)] p-3"
-                style={{ borderRadius: 6 }}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h4 className="mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                    X feed
+            <div className="mt-4 grid gap-3">
+              {sections.map((section) => (
+                <section
+                  key={section.title}
+                  className="border border-[var(--border)] bg-[var(--bg-base)] p-3"
+                  style={{ borderRadius: 6 }}
+                >
+                  <h4 className="mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--accent-purple)]">
+                    {section.title}
                   </h4>
-                  <span className="mono text-[10px] text-[var(--text-tertiary)]">
-                    {data.feed.length} posts
-                  </span>
-                </div>
-                <div className="mt-2 grid gap-2">
-                  {data.feed.length > 0 ? (
-                    data.feed.map((item) => (
-                      <a
-                        key={item.url}
-                        href={item.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="border border-[var(--border)] bg-[var(--bg-surface)] p-3 text-[12px] leading-relaxed text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-secondary)]"
-                        style={{ borderRadius: 6 }}
-                      >
-                        <span className="mono block text-[10.5px] uppercase tracking-[0.12em] text-[var(--accent-purple)]">
-                          {item.handle ? `@${item.handle}` : "X post"}
-                        </span>
-                        <span className="mt-1 block text-[var(--text-secondary)]">
-                          {feedTitle(item.title)}
-                        </span>
-                      </a>
-                    ))
-                  ) : (
-                    <p className="text-[12.5px] leading-relaxed text-[var(--text-tertiary)]">
-                      Grok returned a summary, but no direct X post links were
-                      included in the citations for this refresh window.
-                    </p>
-                  )}
-                </div>
-              </aside>
+                  <ul className="mt-2 space-y-2 text-[12.5px] leading-relaxed text-[var(--text-primary)]">
+                    {section.items.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="mt-[0.65em] h-1 w-1 shrink-0 rounded-full bg-[var(--accent-purple)]" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
             </div>
 
             {data.citations.length > 0 && (
@@ -290,9 +248,4 @@ function cleanSummaryText(value: string): string {
 function sourceLabel(title: string, index: number): string {
   if (title.startsWith("http")) return `Source ${index + 1}`;
   return title.length > 42 ? `${title.slice(0, 39)}...` : title;
-}
-
-function feedTitle(title: string): string {
-  if (/^\d+$/.test(title)) return "Open referenced post on X";
-  return title.length > 120 ? `${title.slice(0, 117)}...` : title;
 }
