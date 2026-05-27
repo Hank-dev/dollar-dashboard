@@ -1,9 +1,16 @@
-import Dashboard from "@/components/Dashboard";
-import { getDashboardData } from "@/lib/fetchers";
+import { TickerStrip } from "@/components/TickerStrip";
+import { SystemBar } from "@/components/SystemBar";
+import { HomeHeader } from "@/components/HomeHeader";
+import { HomeDashCards } from "@/components/HomeDashCards";
 
-export const revalidate = 900; // 15 minutes
-
-export default async function Page() {
-  const data = await getDashboardData();
-  return <Dashboard data={data} />;
+export default function HomePage() {
+  return (
+    <div className="max-w-[1440px] mx-auto border-x border-[var(--border)] min-h-screen bg-[var(--bg-base)] flex flex-col">
+      <TickerStrip />
+      <HomeHeader />
+      <HomeDashCards />
+      <div className="flex-1" />
+      <SystemBar />
+    </div>
+  );
 }

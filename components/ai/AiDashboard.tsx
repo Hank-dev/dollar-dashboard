@@ -38,14 +38,14 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
     <main className="mx-auto max-w-[1080px] px-5 py-8 sm:py-10">
       <header className="flex flex-col gap-3 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0f8f7e] dark:text-[#5ee0cf]">
+          <p className="mono text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--accent-purple)] mb-1">
             Investor / founder briefing
           </p>
           <h1 className="mt-1 text-[21px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[24px]">
             AI &amp; Agent World Monitor
           </h1>
         </div>
-        <p className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
+        <p className="mono text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
           Curated snapshot · {displayDate}
         </p>
       </header>
@@ -53,10 +53,10 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
       <section
         aria-label="Verdict"
         className="mt-6 border border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:p-5"
-        style={{ borderRadius: 8, borderLeft: "3px solid #0f8f7e" }}
+        style={{ borderLeft: "3px solid var(--dash-ai)" }}
       >
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#0f8f7e] dark:text-[#5ee0cf]">
-          Verdict - capital cycle meets agent adoption
+        <p className="mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--accent-purple)]">
+          Verdict — capital cycle meets agent adoption
         </p>
         <p className="mt-2 max-w-[880px] text-[13.5px] leading-relaxed text-[var(--text-primary)]">
           {data.verdict}
@@ -66,7 +66,7 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
       <StatusLegend />
 
       <section className="mt-7">
-        <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
           <GroupIcon name="activity" />
           Market state
         </h2>
@@ -95,7 +95,7 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
       </section>
 
       <section className="mt-9">
-        <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
           <GroupIcon name="trending-up" />
           Frontier model price / intelligence graph
         </h2>
@@ -103,7 +103,7 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
       </section>
 
       <section className="mt-9">
-        <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
           <GroupIcon name="trending-up" />
           Technology radar
         </h2>
@@ -119,7 +119,7 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
       </section>
 
       <section className="mt-9">
-        <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
           <GroupIcon name="message" />
           Ask the AI dashboard
         </h2>
@@ -153,10 +153,10 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
 function StatusLegend() {
   const statuses: Status[] = ["calm", "neutral", "elevated", "stressed"];
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] text-[var(--text-secondary)]">
+    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 mono text-[11px] text-[var(--text-secondary)]">
       {statuses.map((status) => (
         <span key={status} className="inline-flex items-center gap-2">
-          <StatusDot status={status} />
+          <span className={`dot ${status}`} />
           {STATUS_LABEL[status]}
         </span>
       ))}
@@ -165,13 +165,7 @@ function StatusLegend() {
 }
 
 function StatusDot({ status }: { status: Status }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-block h-[7px] w-[7px] shrink-0 rounded-full"
-      style={{ backgroundColor: STATUS_COLOR[status] }}
-    />
-  );
+  return <span className={`dot ${status}`} />;
 }
 
 function MetricTile({
@@ -225,7 +219,7 @@ function PlayerPanel({
 }) {
   return (
     <section>
-      <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+      <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
         <GroupIcon name="building-bank" />
         {title}
       </h2>
@@ -249,7 +243,7 @@ function PlayerPanel({
               </p>
             </div>
             <div>
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#0f8f7e] dark:text-[#5ee0cf]">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-purple)]">
                 {player.kind === "public" ? "Market cap" : "Private valuation"}
               </p>
               <p className="mt-0.5 text-[15px] font-medium tabular-nums text-[var(--text-primary)]">
@@ -283,7 +277,7 @@ function SignalTile({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#0f8f7e] dark:text-[#5ee0cf]">
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-purple)]">
             {signal.track}
           </p>
           <h3 className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-[var(--text-primary)]">

@@ -24,10 +24,10 @@ export interface DashboardData {
 }
 
 export const STATUS_COLOR: Record<Status, string> = {
-  calm: "#639922",
-  neutral: "#888780",
-  elevated: "#EF9F27",
-  stressed: "#E24B4A",
+  calm: "oklch(0.78 0.16 145)",
+  neutral: "#828a98",
+  elevated: "oklch(0.82 0.14 80)",
+  stressed: "oklch(0.70 0.20 25)",
 };
 
 export const STATUS_LABEL: Record<Status, string> = {

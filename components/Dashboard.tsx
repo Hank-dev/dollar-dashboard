@@ -30,13 +30,18 @@ export default function Dashboard({ data }: { data: DashboardData }) {
   );
 
   return (
-    <main className="mx-auto max-w-[720px] px-5 py-10 sm:py-12">
+    <main className="mx-auto max-w-[1080px] px-5 py-8 sm:py-10">
       {/* Header */}
-      <header className="flex items-baseline justify-between gap-4 border-b border-[var(--border)] pb-5">
-        <h1 className="text-[17px] font-semibold tracking-tight text-[var(--text-primary)]">
-          Dollar &amp; global financial system monitor
-        </h1>
-        <p className="shrink-0 text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
+      <header className="flex flex-col gap-3 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mono text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--accent-blue)] mb-1">
+            Macro & rates monitor
+          </p>
+          <h1 className="text-[21px] sm:text-[24px] font-semibold tracking-tight text-[var(--text-primary)]">
+            Dollar &amp; Global Financial System
+          </h1>
+        </div>
+        <p className="shrink-0 mono text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
           Close · {displayDate}
         </p>
       </header>
@@ -45,12 +50,12 @@ export default function Dashboard({ data }: { data: DashboardData }) {
       <section
         aria-label="Verdict"
         className="mt-6 border border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:p-5"
-        style={{ borderRadius: 8, borderLeft: "3px solid var(--accent-amber)" }}
+        style={{ borderLeft: "3px solid var(--dash-dollar)" }}
       >
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-amber)]">
+        <p className="mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--accent-blue)]">
           Verdict — two markets, two answers
         </p>
-        <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-primary)]">
+        <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-primary)] max-w-[880px]">
           Equities and volatility say calm: the S&amp;P sits near records, the VIX is subdued.
           Rates and the dollar&apos;s funding plumbing say stress: the 30-year yield is at a
           19-year high while Japan, the world&apos;s marginal lender, withdraws. The open
@@ -59,14 +64,10 @@ export default function Dashboard({ data }: { data: DashboardData }) {
       </section>
 
       {/* Legend */}
-      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] text-[var(--text-secondary)]">
+      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 mono text-[11px] text-[var(--text-secondary)]">
         {STATUS_ORDER.map((s) => (
           <span key={s} className="inline-flex items-center gap-2">
-            <span
-              aria-hidden
-              className="inline-block h-[7px] w-[7px] rounded-full"
-              style={{ backgroundColor: STATUS_COLOR[s] }}
-            />
+            <span className={`dot ${s}`} />
             {STATUS_LABEL[s]}
           </span>
         ))}
@@ -87,18 +88,18 @@ export default function Dashboard({ data }: { data: DashboardData }) {
 
       {/* Yield curve */}
       <section className="mt-9">
-        <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
           <GroupIcon name="trending-up" />
           US Treasury yield curve
         </h2>
-        <div className="border border-[var(--border)] bg-[var(--bg-surface)] p-4" style={{ borderRadius: 8 }}>
+        <div className="border border-[var(--border)] bg-[var(--bg-surface)] p-4" style={{ borderRadius: "var(--r-3)" }}>
           <YieldCurveChart points={data.yieldCurve} />
         </div>
       </section>
 
       {/* AskBox */}
       <section className="mt-9">
-        <h2 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
           <GroupIcon name="message" />
           Ask the dashboard
         </h2>
@@ -113,9 +114,7 @@ export default function Dashboard({ data }: { data: DashboardData }) {
           Brent.
         </p>
         <p className="mt-2">
-          Caveat: the Japan 10Y JGB figure (~2.8%) rests on a single recent source — moderate
-          confidence. All other figures are corroborated. This dashboard is informational
-          market context, not financial advice.
+          This dashboard is informational market context, not financial advice.
         </p>
       </footer>
 
@@ -127,7 +126,6 @@ export default function Dashboard({ data }: { data: DashboardData }) {
   );
 }
 
-// Tiny inline icons (lucide-style strokes) so we don't add a runtime dep.
 export function GroupIcon({ name }: { name: string }) {
   const common = {
     width: 14,

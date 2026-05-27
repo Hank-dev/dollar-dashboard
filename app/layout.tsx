@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import { TopNav } from "@/components/TopNav";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,10 +9,15 @@ const inter = Inter({
   display: "swap",
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Dollar & global financial system monitor",
-  description:
-    "Snapshot dashboard of US rates, the dollar, and risk-haven markets — with Claude-powered explanations.",
+  title: "Market Monitor",
+  description: "Quantitative dashboards for crypto, macro, and AI.",
 };
 
 export default function RootLayout({
@@ -20,8 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-screen">{children}</body>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
+        <TopNav />
+        {children}
+      </body>
     </html>
   );
 }

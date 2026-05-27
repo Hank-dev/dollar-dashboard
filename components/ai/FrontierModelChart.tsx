@@ -20,11 +20,11 @@ import type {
 ChartJS.register(LinearScale, LogarithmicScale, PointElement, Tooltip, Legend);
 
 const COLORS = [
-  "#0f8f7e",
+  "#9d7cd8",
   "#c2780f",
   "#4f8cc9",
   "#a8553a",
-  "#7c6bd1",
+  "#5fa8d6",
   "#639922",
   "#d04f7a",
   "#77716a",
