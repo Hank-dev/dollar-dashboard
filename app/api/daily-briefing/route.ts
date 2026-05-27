@@ -1,73 +1,145 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/anthropic";
+import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
+import { fetchFredSeries } from "@/lib/btc/data/fred";
+import { fetchFng } from "@/lib/btc/data/alternativeme";
+import { fitPowerLaw, powerLawZ } from "@/lib/btc/calc/powerLaw";
+import { SECONDS_PER_DAY, sma } from "@/lib/btc/calc/util";
+import { mayerMultiple } from "@/lib/btc/calc/indicators";
+import type { DailyPoint } from "@/lib/btc/types";
+import {
+  FRONTIER_MODEL_CANDIDATES,
+  type FrontierModelPoint,
+} from "@/lib/frontierModels";
 
 export const dynamic = "force-dynamic";
 
-async function fetchJson(url: string) {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${base}${url}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
+async function fetchFrontierModels(): Promise<FrontierModelPoint[]> {
+  const OPENROUTER_URL = "https://openrouter.ai/api/v1/models";
+  let openRouterMap = new Map<string, { prompt?: string; completion?: string }>();
+  try {
+    const res = await fetch(OPENROUTER_URL, { cache: "no-store" });
+    if (res.ok) {
+      const body = (await res.json()) as { data?: { id: string; pricing?: { prompt?: string; completion?: string } }[] };
+      openRouterMap = new Map((body.data ?? []).map((m) => [m.id, m.pricing ?? {}]));
+    }
+  } catch {}
+
+  const points: FrontierModelPoint[] = [];
+  const AI_API_COST_BASE = "https://www.aiapicost.com";
+
+  await Promise.allSettled(
+    FRONTIER_MODEL_CANDIDATES.map(async (c) => {
+      const sourceUrl = `${AI_API_COST_BASE}${c.aiApiCostPath}`;
+      const res = await fetch(sourceUrl, { cache: "no-store", headers: { Accept: "text/html", "User-Agent": "market-monitor/0.1" } });
+      if (!res.ok) return;
+      const html = await res.text();
+      const idxMatch = html.match(/Intelligence Index:\s*([0-9.]+)/) ?? html.match(/Intelligence Index<\/a><span[^>]*>([0-9.]+)<\/span>/);
+      const intelligenceIndex = idxMatch ? Number(idxMatch[1]) : null;
+      if (intelligenceIndex == null || !Number.isFinite(intelligenceIndex)) return;
+
+      const inputMatch = html.match(/Input:\s*\$([0-9.]+)\/M tokens/i) ?? html.match(/:\s*\$([0-9.]+)\/M input/i);
+      const outputMatch = html.match(/Output:\s*\$([0-9.]+)\/M tokens/i) ?? html.match(/\$[0-9.]+\/M input,\s*\$([0-9.]+)\/M output/i);
+      let inputUsd = inputMatch ? Number(inputMatch[1]) : null;
+      let outputUsd = outputMatch ? Number(outputMatch[1]) : null;
+
+      if (inputUsd == null || outputUsd == null) {
+        const orPricing = c.openRouterId ? openRouterMap.get(c.openRouterId) : undefined;
+        if (orPricing?.prompt && inputUsd == null) inputUsd = Number(orPricing.prompt) * 1_000_000;
+        if (orPricing?.completion && outputUsd == null) outputUsd = Number(orPricing.completion) * 1_000_000;
+      }
+      if (inputUsd == null || outputUsd == null) return;
+
+      const blended = (inputUsd * 3 + outputUsd) / 4;
+      points.push({ id: c.id, label: c.label, provider: c.provider, intelligenceIndex, inputUsdPerMillion: inputUsd, outputUsdPerMillion: outputUsd, blendedUsdPerMillion: blended, blendedUsdPerToken: blended / 1_000_000, sourceUrl, pricingSource: "AI API Cost" });
+    }),
+  );
+
+  return points.sort((a, b) => b.intelligenceIndex - a.intelligenceIndex);
 }
 
 export async function GET() {
-  const [priceHistory, regime, macro, fng, aiModels] = await Promise.allSettled([
-    fetchJson("/api/price-history"),
-    fetchJson("/api/regime"),
-    fetchJson("/api/macro"),
-    fetchJson("/api/fng"),
-    fetchJson("/api/ai/frontier-models"),
-  ]);
-
   const context: string[] = [];
 
-  if (priceHistory.status === "fulfilled" && priceHistory.value) {
-    const d = priceHistory.value;
-    const series = d.series as { v: number }[];
-    const last = series.at(-1)?.v;
-    const prev = series.at(-2)?.v;
-    const change = last && prev ? ((last - prev) / prev * 100).toFixed(1) : "?";
-    context.push(`BTC price: $${last?.toLocaleString() ?? "?"} (24h: ${change}%)`);
-    context.push(`ATH: $${d.ath?.v?.toLocaleString() ?? "?"}, days since ATH: ${d.daysSinceAth ?? "?"}`);
-    context.push(`Days since halving: ${d.daysSinceLastHalving ?? "?"}`);
-    if (d.powerLaw) context.push(`Power law sigma: ${d.powerLaw.sigma?.toFixed(3) ?? "?"}`);
-  }
+  const [btcResult, macroResults, fngResult, aiResult] = await Promise.allSettled([
+    fetchBtcDailyHistory(),
+    Promise.allSettled([
+      fetchFredSeries("DTWEXBGS", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
+      fetchFredSeries("VIXCLS", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
+      fetchFredSeries("DFII10", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
+      fetchFredSeries("BAMLH0A0HYM2", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
+    ]),
+    fetchFng(30),
+    fetchFrontierModels(),
+  ]);
 
-  if (regime.status === "fulfilled" && regime.value) {
-    const d = regime.value;
-    if (d.powerLawZ != null) context.push(`Power law Z-score: ${d.powerLawZ.toFixed(2)}`);
-    if (d.regime) context.push(`Current regime: ${d.regime}`);
-    if (d.mayerMultiple) context.push(`Mayer multiple: ${d.mayerMultiple.toFixed(2)}`);
-  }
-
-  if (macro.status === "fulfilled" && macro.value) {
-    const indicators = macro.value.indicators as { key: string; label: string; current: number | null; delta30d: number | null; unit: string }[];
-    for (const i of indicators) {
-      if (i.current != null) {
-        const delta = i.delta30d != null ? ` (30d change: ${i.delta30d > 0 ? "+" : ""}${i.delta30d.toFixed(2)}${i.unit})` : "";
-        context.push(`${i.label}: ${i.current.toFixed(2)}${i.unit}${delta}`);
+  if (btcResult.status === "fulfilled") {
+    const series = btcResult.value;
+    const daily: DailyPoint[] = series.map((r) => ({ t: r.t, v: r.v }));
+    const last = daily.at(-1);
+    const prev = daily.at(-2);
+    if (last && prev) {
+      const change = ((last.v - prev.v) / prev.v * 100).toFixed(1);
+      context.push(`BTC price: $${Math.round(last.v).toLocaleString()} (24h: ${change}%)`);
+    }
+    if (daily.length > 200) {
+      const prices = daily.map((d) => d.v);
+      const sma200 = sma(prices, 200);
+      const lastSma = sma200.at(-1);
+      if (last && lastSma) {
+        const mm = mayerMultiple(last.v, lastSma);
+        if (mm != null) context.push(`Mayer multiple: ${mm.toFixed(2)}`);
       }
+      const fit = fitPowerLaw(daily);
+      const z = powerLawZ(fit, last!.t, last!.v);
+      context.push(`Power law Z-score: ${z.toFixed(2)}`);
+    }
+    const ath = daily.reduce((max, d) => d.v > max.v ? d : max, daily[0]);
+    if (last && ath) {
+      const fromAth = ((last.v - ath.v) / ath.v * 100).toFixed(1);
+      context.push(`ATH: $${Math.round(ath.v).toLocaleString()} (${fromAth}% from ATH)`);
+      const daysSinceAth = Math.floor((last.t - ath.t) / SECONDS_PER_DAY);
+      context.push(`Days since ATH: ${daysSinceAth}`);
     }
   }
 
-  if (fng.status === "fulfilled" && fng.value) {
-    const c = fng.value.current;
-    if (c) context.push(`Fear & Greed Index: ${c.v} (${c.label})`);
+  if (macroResults.status === "fulfilled") {
+    const [dxyR, vixR, realYieldR, hyR] = macroResults.value;
+    const summarize = (name: string, unit: string, r: PromiseSettledResult<{ t: number; v: number }[]>) => {
+      if (r.status !== "fulfilled" || r.value.length === 0) return;
+      const s = r.value;
+      const latest = s.at(-1)!;
+      const cutoff = latest.t - 30 * SECONDS_PER_DAY;
+      const prev = s.findLast((p) => p.t <= cutoff);
+      const delta = prev ? (latest.v - prev.v) : null;
+      const deltaStr = delta != null ? ` (30d: ${delta > 0 ? "+" : ""}${delta.toFixed(2)}${unit})` : "";
+      context.push(`${name}: ${latest.v.toFixed(2)}${unit}${deltaStr}`);
+    };
+    summarize("DXY (broad USD)", "", dxyR);
+    summarize("VIX", "", vixR);
+    summarize("10Y real yield", "%", realYieldR);
+    summarize("HY spread", "%", hyR);
   }
 
-  if (aiModels.status === "fulfilled" && aiModels.value) {
-    const points = aiModels.value.points as { label: string; intelligenceIndex: number; blendedUsdPerMillion: number }[];
-    if (points.length > 0) {
-      const top = points[0];
-      const cheapest = [...points].sort((a, b) => a.blendedUsdPerMillion - b.blendedUsdPerMillion)[0];
-      context.push(`Top frontier model: ${top.label} (intelligence index: ${top.intelligenceIndex.toFixed(1)})`);
-      context.push(`Cheapest frontier model: ${cheapest.label} ($${cheapest.blendedUsdPerMillion.toFixed(2)}/1M tokens)`);
-      context.push(`${points.length} frontier models tracked`);
-    }
+  if (fngResult.status === "fulfilled" && fngResult.value.length > 0) {
+    const latest = fngResult.value.at(-1)!;
+    context.push(`Fear & Greed Index: ${latest.v} (${latest.label})`);
+  }
+
+  if (aiResult.status === "fulfilled" && aiResult.value.length > 0) {
+    const points = aiResult.value;
+    const top = points[0];
+    const cheapest = [...points].sort((a, b) => a.blendedUsdPerMillion - b.blendedUsdPerMillion)[0];
+    context.push(`Top frontier model: ${top.label} (intelligence index: ${top.intelligenceIndex.toFixed(1)})`);
+    context.push(`Cheapest frontier model: ${cheapest.label} ($${cheapest.blendedUsdPerMillion.toFixed(2)}/1M tokens)`);
+    context.push(`${points.length} frontier models tracked`);
   }
 
   if (context.length === 0) {
-    return NextResponse.json({ briefing: "Unable to generate briefing — data sources unavailable.", generatedAt: new Date().toISOString() });
+    return NextResponse.json({
+      briefing: "Unable to generate briefing — all data sources failed. Check API keys and network connectivity.",
+      generatedAt: new Date().toISOString(),
+    });
   }
 
   const msg = await anthropic.messages.create({
