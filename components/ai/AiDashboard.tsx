@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import AskBox from "@/components/AskBox";
 import { GroupIcon } from "@/components/Dashboard";
 import FrontierModelChart from "@/components/ai/FrontierModelChart";
+import XMarketSummary from "@/components/ai/XMarketSummary";
 import {
   AI_GROUPS,
   type AiDashboardData,
@@ -12,11 +13,7 @@ import {
   type AiPlayer,
   type AiTechSignal,
 } from "@/lib/aiMetrics";
-import {
-  STATUS_COLOR,
-  STATUS_LABEL,
-  type Status,
-} from "@/lib/metrics";
+import { STATUS_LABEL, type Status } from "@/lib/metrics";
 
 const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
@@ -64,6 +61,14 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
       </section>
 
       <StatusLegend />
+
+      <section className="mt-7">
+        <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
+          <GroupIcon name="message" />
+          Live X signal
+        </h2>
+        <XMarketSummary />
+      </section>
 
       <section className="mt-7">
         <h2 className="mb-3 flex items-center gap-2 mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--text-secondary)]">
