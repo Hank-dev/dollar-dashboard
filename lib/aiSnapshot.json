@@ -1,0 +1,264 @@
+{
+  "verdict": {
+    "text": "AI is no longer a feature cycle; it is a capital cycle. Public value is concentrated in compute and cloud, private value is concentrated in frontier labs and workflow agents, and the next proof point is whether agents can convert huge usage into durable, auditable revenue.",
+    "asOf": "2026-05-27"
+  },
+  "players": {
+    "nvidia": {
+      "marketCap": "$5.2T",
+      "adoptionSignal": "Default accelerator stack for training and inference clusters.",
+      "aiExposure": "Cleanest public-market proxy for frontier AI compute demand.",
+      "status": "stressed",
+      "source": {
+        "name": "StockAnalysis / public market-cap snapshots",
+        "url": "https://stockanalysis.com/stocks/nvda/market-cap/",
+        "asOf": "2026-05-22",
+        "confidence": "medium"
+      }
+    },
+    "alphabet": {
+      "marketCap": "~$4.7T",
+      "adoptionSignal": "Gemini distribution spans Search, Android, Workspace, and Google Cloud.",
+      "aiExposure": "Owns TPUs, consumer distribution, ads surface, and enterprise cloud channel.",
+      "status": "elevated",
+      "source": {
+        "name": "StockAnalysis / public market-cap snapshots",
+        "url": "https://stockanalysis.com/stocks/nvda/market-cap/",
+        "asOf": "2026-05-22",
+        "confidence": "medium"
+      }
+    },
+    "microsoft": {
+      "marketCap": "~$3.6T",
+      "adoptionSignal": "Copilot is the enterprise wedge; GitHub Copilot crossed 20M all-time users.",
+      "aiExposure": "Azure, OpenAI partnership, Office, Windows, GitHub, and security workflow reach.",
+      "status": "elevated",
+      "source": {
+        "name": "TechCrunch, GitHub Copilot usage",
+        "url": "https://techcrunch.com/2025/07/30/github-copilot-crosses-20-million-all-time-users/",
+        "asOf": "2025-07-30",
+        "confidence": "medium"
+      }
+    },
+    "amazon": {
+      "marketCap": "~$2.9T",
+      "adoptionSignal": "Bedrock and AWS infrastructure anchor enterprise model deployment.",
+      "aiExposure": "AI demand flows through AWS compute, custom silicon, logistics, and retail assistants.",
+      "status": "elevated",
+      "source": {
+        "name": "StockAnalysis / public market-cap snapshots",
+        "url": "https://stockanalysis.com/stocks/nvda/market-cap/",
+        "asOf": "2026-05-22",
+        "confidence": "medium"
+      }
+    },
+    "broadcom": {
+      "marketCap": "~$2.0T",
+      "adoptionSignal": "Custom silicon and networking exposure rises with hyperscaler AI clusters.",
+      "aiExposure": "Picks-and-shovels beneficiary when frontier labs diversify beyond merchant GPUs.",
+      "status": "elevated",
+      "source": {
+        "name": "StockAnalysis / public market-cap snapshots",
+        "url": "https://stockanalysis.com/stocks/nvda/market-cap/",
+        "asOf": "2026-05-22",
+        "confidence": "medium"
+      }
+    },
+    "meta": {
+      "marketCap": "~$1.5T",
+      "adoptionSignal": "AI is distributed through feeds, ads, messaging, wearables, and open-weight models.",
+      "aiExposure": "Monetizes AI mostly through ad ranking, engagement, and developer ecosystem gravity.",
+      "status": "neutral",
+      "source": {
+        "name": "StockAnalysis / public market-cap snapshots",
+        "url": "https://stockanalysis.com/stocks/nvda/market-cap/",
+        "asOf": "2026-05-22",
+        "confidence": "medium"
+      }
+    },
+    "openai": {
+      "valuationEstimate": "~$840B post-money",
+      "adoptionSignal": "ChatGPT reported 900M weekly active users and 50M paid subscribers.",
+      "aiExposure": "Consumer AI distribution leader with enterprise, API, coding, and agent ambitions.",
+      "status": "stressed",
+      "source": {
+        "name": "TechCrunch, OpenAI funding and ChatGPT users",
+        "url": "https://techcrunch.com/2026/02/27/openai-raises-110b-in-one-of-the-largest-private-funding-rounds-in-history/",
+        "asOf": "2026-02-27",
+        "confidence": "medium"
+      }
+    },
+    "anthropic": {
+      "valuationEstimate": "~$380B post-money",
+      "adoptionSignal": "Enterprise adoption and revenue acceleration drive the valuation narrative.",
+      "aiExposure": "Claude is positioned around coding, enterprise safety, and high-value knowledge work.",
+      "status": "elevated",
+      "source": {
+        "name": "Axios, Anthropic funding round",
+        "url": "https://www.axios.com/2026/02/12/anthropic-raises-30b-at-380b-valuation",
+        "asOf": "2026-02-12",
+        "confidence": "medium"
+      }
+    },
+    "databricks": {
+      "valuationEstimate": "~$134B",
+      "adoptionSignal": "Lakehouse data estate is the enterprise control point for production AI.",
+      "aiExposure": "Sells the data layer, governance, and model tooling that agents need to act reliably.",
+      "status": "neutral",
+      "source": {
+        "name": "Databricks valuation reporting",
+        "url": "https://ai2.work/blog/databricks-at-134b-the-ipo-that-will-define-ai-valuations-in-2026",
+        "asOf": "2026-02-09",
+        "confidence": "low"
+      }
+    },
+    "cursor": {
+      "valuationEstimate": "$9.9B",
+      "adoptionSignal": "Reported above $500M ARR in 2025; strongest independent AI IDE signal.",
+      "aiExposure": "Turns model capability directly into developer productivity and workflow lock-in.",
+      "status": "elevated",
+      "source": {
+        "name": "TechCrunch, Anysphere funding",
+        "url": "https://techcrunch.com/2025/06/05/cursors-anysphere-nabs-9-9b-valuation-soars-past-500m-arr/",
+        "asOf": "2025-06-05",
+        "confidence": "medium"
+      }
+    },
+    "perplexity": {
+      "valuationEstimate": "~$18B prior round",
+      "adoptionSignal": "Sacra estimates $500M annualized revenue in April 2026.",
+      "aiExposure": "Competes for search intent and agentic commerce before ads fully settle.",
+      "status": "neutral",
+      "source": {
+        "name": "Sacra, Perplexity revenue and valuation",
+        "url": "https://sacra.com/research/perplexity/",
+        "asOf": "2026-04-30",
+        "confidence": "low"
+      }
+    }
+  },
+  "marketMetrics": {
+    "capex-race": {
+      "value": "Quadrupled",
+      "context": "Since GPT-4 release",
+      "detail": "The market is supply constrained: capital intensity is rising faster than most software revenue lines.",
+      "status": "stressed",
+      "source": {
+        "name": "Epoch AI, hyperscaler capex trend",
+        "url": "https://epoch.ai/data-insights/hyperscaler-capex-trend",
+        "asOf": "2026-02-27",
+        "confidence": "high"
+      }
+    },
+    "private-valuation": {
+      "value": "$100B+ tier",
+      "context": "OpenAI, Anthropic, Databricks",
+      "detail": "Private marks are now large enough to influence public-company strategy, cloud commitments, and M&A math.",
+      "status": "elevated",
+      "source": {
+        "name": "TechCrunch, OpenAI funding and ChatGPT users",
+        "url": "https://techcrunch.com/2026/02/27/openai-raises-110b-in-one-of-the-largest-private-funding-rounds-in-history/",
+        "asOf": "2026-02-27",
+        "confidence": "medium"
+      }
+    },
+    "consumer-scale": {
+      "value": "900M WAU",
+      "context": "Reported February 2026",
+      "detail": "Consumer AI has crossed mass-market scale; the open question is revenue per active user and retention by task.",
+      "status": "stressed",
+      "source": {
+        "name": "TechCrunch, ChatGPT weekly active users",
+        "url": "https://techcrunch.com/2026/02/27/chatgpt-reaches-900m-weekly-active-users/",
+        "asOf": "2026-02-27",
+        "confidence": "medium"
+      }
+    },
+    "coding-agent": {
+      "value": "20M+",
+      "context": "GitHub Copilot all-time users",
+      "detail": "Developer tools are the clearest paid-agent wedge because output quality is measurable and time savings are obvious.",
+      "status": "elevated",
+      "source": {
+        "name": "TechCrunch, GitHub Copilot usage",
+        "url": "https://techcrunch.com/2025/07/30/github-copilot-crosses-20-million-all-time-users/",
+        "asOf": "2025-07-30",
+        "confidence": "medium"
+      }
+    },
+    "open-pressure": {
+      "value": "Rising",
+      "context": "Qwen, DeepSeek, Llama, Mistral",
+      "detail": "Open and open-weight models pressure API pricing and push differentiation toward distribution, tooling, and data.",
+      "status": "elevated",
+      "source": {
+        "name": "LLMCheck, state of open-source local LLMs",
+        "url": "https://llmcheck.net/blog/state-of-open-source-local-llms-may-2026/",
+        "asOf": "2026-05-09",
+        "confidence": "low"
+      }
+    },
+    "agent-reliability": {
+      "value": "Bottleneck",
+      "context": "Autonomy needs guardrails",
+      "detail": "Agents are useful in bounded workflows, but planning errors, tool misuse, permissions, and auditability still cap autonomy.",
+      "status": "stressed",
+      "source": {
+        "name": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "asOf": "2026-04-07",
+        "confidence": "high"
+      }
+    }
+  },
+  "techSignals": {
+    "frontier-models": {
+      "label": "Frontier models are multimodal operating systems",
+      "summary": "The leading labs are bundling text, code, vision, voice, memory, tools, and computer use into one platform surface.",
+      "watchNext": "Watch whether model gains translate into lower cost per completed task, not just higher benchmark scores.",
+      "status": "elevated",
+      "source": {
+        "name": "TechCrunch, OpenAI funding and ChatGPT users",
+        "url": "https://techcrunch.com/2026/02/27/openai-raises-110b-in-one-of-the-largest-private-funding-rounds-in-history/",
+        "asOf": "2026-02-27",
+        "confidence": "medium"
+      }
+    },
+    "agents": {
+      "label": "Agents work best where mistakes are reversible",
+      "summary": "Coding, support triage, research, data cleanup, and sales ops are ahead of high-stakes autonomous execution.",
+      "watchNext": "Watch permissions, evals, and human approval loops become product primitives.",
+      "status": "neutral",
+      "source": {
+        "name": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "asOf": "2026-04-07",
+        "confidence": "high"
+      }
+    },
+    "ai-ides": {
+      "label": "AI IDEs are the most legible agent business",
+      "summary": "Cursor and Copilot show that workflow-native agents can monetize faster than broad horizontal assistants.",
+      "watchNext": "Watch whether coding agents expand from suggestions into repo-level planning, testing, and code review.",
+      "status": "elevated",
+      "source": {
+        "name": "TechCrunch, Anysphere funding",
+        "url": "https://techcrunch.com/2025/06/05/cursors-anysphere-nabs-9-9b-valuation-soars-past-500m-arr/",
+        "asOf": "2025-06-05",
+        "confidence": "medium"
+      }
+    },
+    "compute-stack": {
+      "label": "Compute is still the choke point",
+      "summary": "GPU supply, power, data centers, networking, and custom ASIC roadmaps are shaping product release cadence.",
+      "watchNext": "Watch capex efficiency, inference margins, and how much custom silicon shifts value away from NVIDIA.",
+      "status": "stressed",
+      "source": {
+        "name": "Epoch AI, hyperscaler capex trend",
+        "url": "https://epoch.ai/data-insights/hyperscaler-capex-trend",
+        "asOf": "2026-02-27",
+        "confidence": "high"
+      }
+    }
+  }
+}
