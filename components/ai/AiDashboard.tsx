@@ -14,6 +14,7 @@ import {
   type AiTechSignal,
 } from "@/lib/aiMetrics";
 import { STATUS_LABEL, type Status } from "@/lib/metrics";
+import { freshnessOf, type Freshness } from "@/lib/freshness";
 
 const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
@@ -42,8 +43,9 @@ export default function AiDashboard({ data }: { data: AiDashboardData }) {
             AI &amp; Agent World Monitor
           </h1>
         </div>
-        <p className="mono text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
-          Curated snapshot · {displayDate}
+        <p className="mono inline-flex items-center gap-1.5 text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
+          <FreshnessDot asOf={data.snapshotDate} />
+          Snapshot · refreshed {displayDate}
         </p>
       </header>
 
@@ -173,6 +175,28 @@ function StatusDot({ status }: { status: Status }) {
   return <span className={`dot ${status}`} />;
 }
 
+const FRESHNESS_TITLE: Record<Freshness, string> = {
+  fresh: "Recently refreshed",
+  aging: "Aging — over 30 days old",
+  stale: "Stale — over 90 days old",
+};
+const FRESHNESS_COLOR: Record<Freshness, string> = {
+  fresh: "var(--accent-purple)",
+  aging: "oklch(0.82 0.14 80)",
+  stale: "oklch(0.70 0.20 25)",
+};
+
+function FreshnessDot({ asOf }: { asOf: string }) {
+  const level = freshnessOf(asOf);
+  return (
+    <span
+      title={`${FRESHNESS_TITLE[level]} · as of ${asOf}`}
+      aria-label={FRESHNESS_TITLE[level]}
+      style={{ display: "inline-block", width: 6, height: 6, borderRadius: 9999, background: FRESHNESS_COLOR[level] }}
+    />
+  );
+}
+
 function MetricTile({
   metric,
   onSelect,
@@ -195,8 +219,9 @@ function MetricTile({
             <StatusDot status={metric.status} />
             <span className="truncate">{metric.label}</span>
           </span>
-          <span className="text-[10px] text-[var(--text-tertiary)] opacity-0 transition-opacity group-hover:opacity-100">
-            i
+          <span className="inline-flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
+            <FreshnessDot asOf={metric.source.asOf} />
+            <span className="opacity-0 transition-opacity group-hover:opacity-100">i</span>
           </span>
         </div>
         <p className="mt-2 text-[24px] font-medium tabular-nums text-[var(--text-primary)]">
@@ -248,7 +273,8 @@ function PlayerPanel({
               </p>
             </div>
             <div>
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-purple)]">
+              <p className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-purple)]">
+                <FreshnessDot asOf={player.source.asOf} />
                 {player.kind === "public" ? "Market cap" : "Private valuation"}
               </p>
               <p className="mt-0.5 text-[15px] font-medium tabular-nums text-[var(--text-primary)]">
@@ -290,8 +316,9 @@ function SignalTile({
             <span>{signal.label}</span>
           </h3>
         </div>
-        <span className="text-[10px] text-[var(--text-tertiary)] opacity-0 transition-opacity group-hover:opacity-100">
-          i
+        <span className="inline-flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
+          <FreshnessDot asOf={signal.source.asOf} />
+          <span className="opacity-0 transition-opacity group-hover:opacity-100">i</span>
         </span>
       </div>
       <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
