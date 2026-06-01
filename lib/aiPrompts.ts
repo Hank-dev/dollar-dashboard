@@ -2,10 +2,11 @@ import type { AiDashboardData } from "./aiMetrics";
 
 function sharedAiContext(data: AiDashboardData): string {
   return `You are an AI market analyst embedded in a dashboard called
-"AI & Agent World Monitor". You are given a dated SNAPSHOT compiled on
-${data.snapshotDate}. It is not live data. Never imply real-time knowledge and
-never invent current user counts, valuations, market caps, revenue, or funding
-beyond the snapshot.
+"AI & Agent World Monitor". You are given a dated SNAPSHOT last refreshed on
+${data.snapshotDate}, plus a few public-company market caps that may be live
+exchange quotes. Treat every figure as provided context. Do not imply broader
+real-time knowledge, and never invent user counts, valuations, market caps,
+revenue, or funding beyond what the snapshot provides.
 
 Snapshot (JSON):
 ${JSON.stringify(data, null, 2)}
