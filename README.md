@@ -75,6 +75,24 @@ lib/
 - The Japan 10Y JGB figure (~2.8%) rests on a single recent source; the footer
   surfaces this and the system prompt instructs Claude to flag it.
 
+## Snapshot refresh
+
+The `/ai` dashboard's slow-moving data lives in `lib/aiSnapshot.json` — each value carries an `asOf` date, a `source`, and a `confidence`. `lib/aiMetrics.ts` holds only the fixed roster (which players/metrics/signals exist) plus the builder. Public-company market caps are overlaid with live quotes at request time; everything else is read from the JSON.
+
+`scripts/refresh-snapshots.ts` uses Claude + web search to re-verify and rewrite that JSON:
+
+```bash
+# preview changes without writing
+ENABLE_WEB_SEARCH=true ANTHROPIC_API_KEY=sk-... npm run refresh:snapshots -- --dry-run
+
+# write the updated file
+ENABLE_WEB_SEARCH=true ANTHROPIC_API_KEY=sk-... npm run refresh:snapshots
+```
+
+A weekly GitHub Action (`.github/workflows/refresh-snapshots.yml`) runs the script and opens a PR with the diff for review. It requires an `ANTHROPIC_API_KEY` repository secret (Settings → Secrets and variables → Actions).
+
+It also requires **Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests"** to be enabled — without that (or without the secret) the scheduled run fails and opens no PR. If the snapshot is unchanged, no PR is opened. Set `REFRESH_MODEL` to override the default `claude-sonnet-4-6` model used by the refresh script.
+
 ## Out of scope (v1)
 
 - Live market data feeds (future: FRED, quotes provider).

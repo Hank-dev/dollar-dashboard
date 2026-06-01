@@ -1,0 +1,35 @@
+name: Refresh dashboard snapshots
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Refresh snapshots
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ENABLE_WEB_SEARCH: "true"
+        run: npm run refresh:snapshots
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: auto/refresh-snapshots
+          title: "chore: refresh dashboard snapshot"
+          commit-message: "chore: refresh dashboard snapshot"
+          body: |
+            Automated weekly refresh of `lib/aiSnapshot.json` (Claude + web search).
+            Review the diff and the cited sources before merging.
+          labels: automated, data-refresh
+          delete-branch: true
