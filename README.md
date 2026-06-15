@@ -39,6 +39,57 @@ Open <http://localhost:3000>.
 The dashboard itself renders fully even if the API key is missing or invalid —
 only the Explain drawer and AskBox surface a friendly error.
 
+## VPS Deployment
+
+The app can run on a VPS with Docker Compose. It builds Next.js in standalone
+mode, runs the production server on container port `3000`, and maps it to host
+port `3001` by default so it can run beside other dashboards.
+
+On the VPS:
+
+```bash
+git clone <your-repo-url>
+cd <repo-directory>
+cp .env.example .env
+```
+
+Edit `.env` and set `ANTHROPIC_API_KEY`. You can keep `APP_PORT=3001` unless
+that port is already in use.
+
+Start the dashboard:
+
+```bash
+docker compose up -d --build
+docker compose ps
+curl http://127.0.0.1:3001/api/health
+```
+
+If you are not using a domain yet, open `http://<your-vps-ip>:3001`. If you are
+using Nginx, proxy your domain to the local container port:
+
+```nginx
+server {
+  listen 80;
+  server_name your-domain.com;
+
+  location / {
+    proxy_pass http://127.0.0.1:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+To deploy updates:
+
+```bash
+git pull
+docker compose up -d --build
+```
+
 ## Project structure
 
 ```
