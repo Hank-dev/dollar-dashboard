@@ -11,6 +11,8 @@ explanation layer:
 Data is a static snapshot dated **2026-05-22** (close of session). Live data
 feeds are out of scope for v1.
 
+> **Status note:** the deployed v2 has grown beyond this README — sections for BTC, Dollar & Macro, AI models, and Nuclear Energy, plus a daily generated Claude briefing. Screenshot of the live app: [docs/screenshot-dashboard.png](docs/screenshot-dashboard.png)
+
 ## Prerequisites
 
 - Node.js 20.9 or newer
