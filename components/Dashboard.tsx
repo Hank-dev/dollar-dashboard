@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   GROUPS,
-  STATUS_COLOR,
   STATUS_LABEL,
   type DashboardData,
   type Metric,

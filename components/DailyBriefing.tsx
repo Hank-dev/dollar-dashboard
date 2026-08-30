@@ -8,30 +8,58 @@ interface BriefingData {
   dataPoints?: number;
 }
 
+async function fetchBriefing(signal?: AbortSignal): Promise<BriefingData> {
+  const response = await fetch("/api/daily-briefing", { signal });
+  if (!response.ok) throw new Error(`${response.status}`);
+  return response.json();
+}
+
+function InlineBriefing({ text }: { text: string }) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={index} className="font-semibold text-[var(--text-primary)]">
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      <span key={index}>{part}</span>
+    ),
+  );
+}
+
 export function DailyBriefing() {
   const [data, setData] = useState<BriefingData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchBriefing(controller.signal)
+      .then(setData)
+      .catch((reason: unknown) => {
+        if (reason instanceof DOMException && reason.name === "AbortError") return;
+        setError(reason instanceof Error ? reason.message : "unknown error");
+      })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   function loadBriefing() {
     setLoading(true);
     setError(null);
-    fetch("/api/daily-briefing")
-      .then((r) => {
-        if (!r.ok) throw new Error(`${r.status}`);
-        return r.json();
-      })
-      .then((d) => setData(d))
-      .catch((e) => setError(e.message))
+    fetchBriefing()
+      .then(setData)
+      .catch((reason: unknown) =>
+        setError(reason instanceof Error ? reason.message : "unknown error"),
+      )
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => {
-    loadBriefing();
-  }, []);
-
   const time = data?.generatedAt
-    ? new Date(data.generatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    ? new Date(data.generatedAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+      })
     : null;
 
   return (
@@ -72,8 +100,8 @@ export function DailyBriefing() {
         )}
         {data && (
           <div className="text-[13px] leading-[1.65] text-[var(--text-secondary)] space-y-3">
-            {data.briefing.split("\n\n").map((para, i) => (
-              <p key={i}>{para}</p>
+            {data.briefing.split("\n\n").map((paragraph, index) => (
+              <p key={index}><InlineBriefing text={paragraph} /></p>
             ))}
           </div>
         )}

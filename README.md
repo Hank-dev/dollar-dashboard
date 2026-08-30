@@ -1,153 +1,98 @@
-# Dollar & global financial system monitor
+# Market Monitor
 
-A single-page Next.js dashboard showing ~14 macro-market metrics describing the
-health of the US dollar and the global financial system, with a Claude-powered
-explanation layer:
+A source-aware decision dashboard that connects four technology-and-markets questions in one interface: **dollar liquidity, Bitcoin, AI infrastructure, and nuclear energy**.
 
-- **Click any metric card** → slide-in drawer with a 2–4 sentence explanation
-  grounded in the current snapshot value.
-- **Ask the dashboard** → free-text Q&A, streamed token-by-token.
+![Market Monitor dashboard](docs/screenshot-dashboard.png)
 
-Data is a static snapshot dated **2026-05-22** (close of session). Live data
-feeds are out of scope for v1.
+> Screenshot uses public market data. AI interpretation is optional; the underlying dashboard remains usable without model credentials.
 
-> **Status note:** the deployed v2 has grown beyond this README — sections for BTC, Dollar & Macro, AI models, and Nuclear Energy, plus a daily generated Claude briefing. Screenshot of the live app: [docs/screenshot-dashboard.png](docs/screenshot-dashboard.png)
+## Recruiter quick read
 
-## Prerequisites
+| Signal | Evidence in this repository |
+|---|---|
+| **Analytics / BI** | Multi-source metrics are normalized into status, trend, freshness, and provenance fields before presentation. |
+| **Energy + technology** | Dedicated nuclear and AI-infrastructure views connect operating data, market structure, and source notes. |
+| **Product engineering** | Responsive Next.js interface, server-side API routes, error states, Docker deployment, and scheduled snapshot refreshes. |
+| **Decision discipline** | Static snapshots provide a reproducible baseline; live overlays and AI summaries are clearly separated from source data. |
 
-- Node.js 20.9 or newer
-- An Anthropic API key (`sk-ant-…`)
+## What the product does
 
-## Setup
+- **Home** — one-screen regime summary across macro, BTC, AI, and nuclear signals.
+- **Dollar & Macro** — a dated snapshot of dollar-system metrics with source notes and explainable status thresholds.
+- **Bitcoin** — price, cycle, macro, and network context in a research-oriented terminal view.
+- **AI Infrastructure** — company and model snapshots, public-market overlays, and source-level confidence metadata.
+- **Nuclear Energy** — reactor, uranium, and public-company signals with dated evidence and a separate live-source layer.
+- **Optional interpretation** — ask/explain routes and daily briefings run server-side; credentials never enter the client bundle.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Public market and macro sources] --> B[Server-side fetchers]
+    C[Versioned JSON snapshots] --> D[Validation and metric builders]
+    B --> D
+    D --> E[Next.js dashboards]
+    E --> F[Status, trend, freshness, provenance]
+    G[Anthropic / xAI optional] --> H[Explain, ask, briefing routes]
+    D --> H
+    H --> E
+```
+
+The key design choice is the boundary between **facts** and **interpretation**. Metric values, dates, and sources are structured data; model output is an optional narrative layer.
+
+## Run locally
+
+Requires Node.js 20.9 or newer.
 
 ```bash
 npm install
-cp .env.example .env.local
-# edit .env.local and set ANTHROPIC_API_KEY=sk-ant-...
 npm run dev
 ```
 
-Open <http://localhost:3000>.
+Open <http://localhost:3000>. Public-data and snapshot views render without LLM credentials.
 
-## Environment variables
+Optional server-side integrations:
 
-| Var | Default | Purpose |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | — (required) | Server-side only. Never prefixed with `NEXT_PUBLIC_`. |
-| `EXPLAIN_MODEL` | `claude-sonnet-4-6` | Model used by `/api/explain`. |
-| `ASK_MODEL` | `claude-sonnet-4-6` | Model used by `/api/ask`. Set to `claude-opus-4-7` for deeper analysis. |
-| `ENABLE_WEB_SEARCH` | `false` | (Reserved) gate live web search in the ask endpoint. |
+| Variable | Purpose |
+|---|---|
+| `ANTHROPIC_API_KEY` | Explain, ask, interpretation, and snapshot-refresh routes |
+| `FRED_API_KEY` | Live FRED overlays and yield-curve history |
+| `XAI_API_KEY` | Optional recent-X summary on AI and nuclear views |
+| `EXPLAIN_MODEL` / `ASK_MODEL` | Override Anthropic models |
+| `XAI_SUMMARY_MODEL` | Override the xAI summary model |
+| `ENABLE_WEB_SEARCH=true` | Explicit gate for the snapshot refresh script |
 
-The dashboard itself renders fully even if the API key is missing or invalid —
-only the Explain drawer and AskBox surface a friendly error.
-
-## VPS Deployment
-
-The app can run on a VPS with Docker Compose. It builds Next.js in standalone
-mode, runs the production server on container port `3000`, and maps it to host
-port `3001` by default so it can run beside other dashboards.
-
-On the VPS:
+## Quality gates
 
 ```bash
-git clone <your-repo-url>
-cd <repo-directory>
-cp .env.example .env
+npm run lint
+npm run build
 ```
 
-Edit `.env` and set `ANTHROPIC_API_KEY`. You can keep `APP_PORT=3001` unless
-that port is already in use.
-
-Start the dashboard:
-
-```bash
-docker compose up -d --build
-docker compose ps
-curl http://127.0.0.1:3001/api/health
-```
-
-If you are not using a domain yet, open `http://<your-vps-ip>:3001`. If you are
-using Nginx, proxy your domain to the local container port:
-
-```nginx
-server {
-  listen 80;
-  server_name your-domain.com;
-
-  location / {
-    proxy_pass http://127.0.0.1:3001;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-}
-```
-
-To deploy updates:
-
-```bash
-git pull
-docker compose up -d --build
-```
-
-## Project structure
-
-```
-app/
-  layout.tsx           – root layout, fonts, metadata
-  page.tsx             – mounts <Dashboard />
-  globals.css          – Tailwind v4 + theme tokens (light + dark)
-  api/
-    explain/route.ts   – per-metric explanation (non-streaming)
-    ask/route.ts       – free-form Q&A (text/plain stream)
-components/
-  Dashboard.tsx        – layout, header, verdict, legend, footer
-  MetricGroup.tsx      – section heading + responsive grid
-  MetricCard.tsx       – card surface + status dot + click-to-explain
-  YieldCurveChart.tsx  – Chart.js line with theme-aware colors
-  ExplainDrawer.tsx    – right-side drawer, focus trap, esc-to-close, cached
-  AskBox.tsx           – textarea + streamed answer
-lib/
-  metrics.ts           – the dataset (source of truth for UI and AI context)
-  prompts.ts           – shared snapshot + per-feature system prompts
-  anthropic.ts         – shared SDK client
-```
-
-## Notes
-
-- The API key is read inside route handlers via `process.env.ANTHROPIC_API_KEY`
-  and never leaves the server. The client bundle contains no Anthropic
-  credentials.
-- Explanations are cached client-side per `metricId` so re-opening a drawer
-  doesn't re-call the API.
-- `max_tokens` is capped at 400 (explain) and 800 (ask) for cost control.
-- Status is announced to screen readers via an `sr-only` text label — not just
-  the dot color.
-- The Japan 10Y JGB figure (~2.8%) rests on a single recent source; the footer
-  surfaces this and the system prompt instructs Claude to flag it.
+The weekly snapshot workflow opens a reviewable PR only when `ANTHROPIC_API_KEY` is configured. Without that secret it exits cleanly with an explicit skip instead of producing a red scheduled run.
 
 ## Snapshot refresh
 
-The `/ai` dashboard's slow-moving data lives in `lib/aiSnapshot.json` — each value carries an `asOf` date, a `source`, and a `confidence`. `lib/aiMetrics.ts` holds only the fixed roster (which players/metrics/signals exist) plus the builder. Public-company market caps are overlaid with live quotes at request time; everything else is read from the JSON.
-
-`scripts/refresh-snapshots.ts` uses Claude + web search to re-verify and rewrite that JSON:
+Slow-moving AI-infrastructure data lives in `lib/aiSnapshot.json`. Each value carries an `asOf` date, source, and confidence. The refresh script re-verifies that snapshot and supports a dry run:
 
 ```bash
-# preview changes without writing
-ENABLE_WEB_SEARCH=true ANTHROPIC_API_KEY=sk-... npm run refresh:snapshots -- --dry-run
-
-# write the updated file
-ENABLE_WEB_SEARCH=true ANTHROPIC_API_KEY=sk-... npm run refresh:snapshots
+ENABLE_WEB_SEARCH=true npm run refresh:snapshots -- --dry-run
 ```
 
-A weekly GitHub Action (`.github/workflows/refresh-snapshots.yml`) runs the script and opens a PR with the diff for review. It requires an `ANTHROPIC_API_KEY` repository secret (Settings → Secrets and variables → Actions).
+Writing a refreshed snapshot additionally requires the server-side Anthropic key. Generated changes are reviewed as a diff before they become the new baseline.
 
-It also requires **Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests"** to be enabled — without that (or without the secret) the scheduled run fails and opens no PR. If the snapshot is unchanged, no PR is opened. Set `REFRESH_MODEL` to override the default `claude-sonnet-4-6` model used by the refresh script.
+## VPS deployment
 
-## Out of scope (v1)
+```bash
+docker compose up -d --build
+curl http://127.0.0.1:3001/api/health
+```
 
-- Live market data feeds (future: FRED, quotes provider).
-- User accounts, saved questions, conversation history.
-- Multi-turn chat — AskBox is single-question, single-answer.
+The production image uses Next.js standalone output and exposes container port `3000`; the included Compose file maps it to host port `3001` by default.
+
+## Limitations
+
+- This is an analytical monitor, not investment advice or an execution system.
+- Source calendars differ, so freshness is shown per metric rather than hidden behind a single “live” label.
+- Provider failures degrade individual overlays; they should not invalidate dated snapshots.
+- AI summaries can be wrong and are never treated as the source of record.

@@ -10,19 +10,29 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    env:
+      HAS_ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
     steps:
+      - name: Explain skipped refresh
+        if: env.HAS_ANTHROPIC_KEY != 'true'
+        run: echo "::notice::Skipping snapshot refresh because ANTHROPIC_API_KEY is not configured."
       - uses: actions/checkout@v4
+        if: env.HAS_ANTHROPIC_KEY == 'true'
       - uses: actions/setup-node@v4
+        if: env.HAS_ANTHROPIC_KEY == 'true'
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
+        if: env.HAS_ANTHROPIC_KEY == 'true'
       - name: Refresh snapshots
+        if: env.HAS_ANTHROPIC_KEY == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ENABLE_WEB_SEARCH: "true"
         run: npm run refresh:snapshots
       - name: Open PR
+        if: env.HAS_ANTHROPIC_KEY == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           branch: auto/refresh-snapshots

@@ -77,13 +77,13 @@ export async function GET() {
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
     if (xSummaryCache) {
       return summaryJson({ ...xSummaryCache.data, cacheStatus: "stale" });
     }
+    console.error(`xAI nuclear summary request failed with status ${res.status}`);
     return NextResponse.json(
       {
-        error: text || `xAI request failed (${res.status}).`,
+        error: `Live X summary is temporarily unavailable (upstream status ${res.status}).`,
       },
       { status: 502 },
     );
