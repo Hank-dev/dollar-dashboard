@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GROUPS,
   STATUS_LABEL,
@@ -24,9 +24,30 @@ const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
 
 export default function Dashboard({ data }: { data: DashboardData }) {
   const [openMetric, setOpenMetric] = useState<Metric | null>(null);
+  const [aiVerdict, setAiVerdict] = useState<string | null>(null);
+  const [verdictLoading, setVerdictLoading] = useState(false);
+  const [verdictError, setVerdictError] = useState(false);
   const displayDate = DATE_FMT.format(
     new Date(data.snapshotDate + "T00:00:00Z"),
   );
+
+  useEffect(() => {
+    function loadVerdict() {
+      setVerdictLoading(true);
+      setVerdictError(false);
+      fetch("/api/verdict")
+        .then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        })
+        .then((d) => setAiVerdict(d.verdict))
+        .catch(() => setVerdictError(true))
+        .finally(() => setVerdictLoading(false));
+    }
+    loadVerdict();
+    const interval = setInterval(loadVerdict, 24 * 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <main className="mx-auto max-w-[1080px] px-5 py-8 sm:py-10">
@@ -52,14 +73,27 @@ export default function Dashboard({ data }: { data: DashboardData }) {
         style={{ borderLeft: "3px solid var(--dash-dollar)" }}
       >
         <p className="mono text-[10.5px] font-medium tracking-[0.12em] uppercase text-[var(--accent-blue)]">
-          Verdict — two markets, two answers
+          Verdict — {aiVerdict ? "Claude" : "two markets, two answers"}
         </p>
-        <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-primary)] max-w-[880px]">
-          Equities and volatility say calm: the S&amp;P sits near records, the VIX is subdued.
-          Rates and the dollar&apos;s funding plumbing say stress: the 30-year yield is at a
-          19-year high while Japan, the world&apos;s marginal lender, withdraws. The open
-          question is which side converges to the other.
-        </p>
+        {verdictLoading && !aiVerdict && (
+          <div className="mt-2 space-y-1.5">
+            <div className="skeleton-line h-3 w-full" />
+            <div className="skeleton-line h-3 w-[92%]" />
+            <span className="sr-only">Generating verdict…</span>
+          </div>
+        )}
+        {aiVerdict && (
+          <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-primary)] max-w-[880px]">
+            {aiVerdict}
+          </p>
+        )}
+        {!aiVerdict && !verdictLoading && (
+          <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-primary)] max-w-[880px]">
+            {verdictError
+              ? "AI verdict unavailable; showing the static market framing."
+              : "Equities and volatility say calm: the S&P sits near records, the VIX is subdued. Rates and the dollar's funding plumbing say stress: the 30-year yield is at a 19-year high while Japan, the world's marginal lender, withdraws. The open question is which side converges to the other."}
+          </p>
+        )}
       </section>
 
       {/* Legend */}

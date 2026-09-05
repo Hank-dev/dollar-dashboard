@@ -58,15 +58,15 @@ const PUBLIC_SYMBOLS = [
 
 const URANIUM_PROXY_SYMBOLS = ["URA", "URNM", "NLR"];
 
-const MARKET_CAP_USD_BY_SYMBOL: Record<string, number> = {
-  CEG: 108.9e9,
-  VST: 55.5e9,
-  CCJ: 46.6e9,
-  BWXT: 18.7e9,
-  OKLO: 12.0e9,
-  UEC: 6.4e9,
-  SMR: 4.5e9,
-  LEU: 3.5e9,
+export const MARKET_CAP_USD_BY_SYMBOL: Record<string, number> = {
+  CEG: 98.05e9,
+  VST: 46.01e9,
+  CCJ: 43.61e9,
+  BWXT: 14.0e9,
+  OKLO: 7.47e9,
+  UEC: 6.14e9,
+  SMR: 3.99e9,
+  LEU: 3.51e9,
 };
 
 const NAME_BY_SYMBOL: Record<string, string> = {

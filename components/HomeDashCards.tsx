@@ -123,92 +123,98 @@ export function HomeDashCards() {
   const [sparks, setSparks] = useState<{ btc: number[]; dxy: number[]; fng: number[] }>({ btc: [], dxy: [], fng: [] });
 
   useEffect(() => {
-    fetch("/api/price-history")
-      .then((r) => r.json())
-      .then((d) => {
-        const series = d.series as { v: number }[];
-        const last = series.at(-1)?.v ?? null;
-        const prev = series.at(-2)?.v ?? null;
-        setBtc({
-          price: last,
-          ath: d.ath?.v ?? null,
-          daysSinceAth: d.daysSinceAth ?? null,
-          daysSinceLastHalving: d.daysSinceLastHalving ?? null,
-          powerLawZ: d.powerLaw?.sigma ?? null,
-          change24h: last && prev ? (last - prev) / prev : null,
-        });
-      })
-      .catch(() => {});
+    function loadData() {
+      fetch("/api/price-history")
+        .then((r) => r.json())
+        .then((d) => {
+          const series = d.series as { v: number }[];
+          const last = series.at(-1)?.v ?? null;
+          const prev = series.at(-2)?.v ?? null;
+          setBtc({
+            price: last,
+            ath: d.ath?.v ?? null,
+            daysSinceAth: d.daysSinceAth ?? null,
+            daysSinceLastHalving: d.daysSinceLastHalving ?? null,
+            powerLawZ: d.powerLaw?.sigma ?? null,
+            change24h: last && prev ? (last - prev) / prev : null,
+          });
+        })
+        .catch(() => {});
 
-    fetch("/api/regime")
-      .then((r) => r.json())
-      .then((d) => {
-        setBtc((prev) => ({ ...prev, powerLawZ: d.powerLawZ ?? prev.powerLawZ }));
-      })
-      .catch(() => {});
+      fetch("/api/regime")
+        .then((r) => r.json())
+        .then((d) => {
+          setBtc((prev) => ({ ...prev, powerLawZ: d.powerLawZ ?? prev.powerLawZ }));
+        })
+        .catch(() => {});
 
-    fetch("/api/macro")
-      .then((r) => r.json())
-      .then((d) => {
-        const indicators = d.indicators as { key: string; current: number | null; delta30d: number | null }[];
-        const dxyI = indicators.find((i) => i.key === "dxy");
-        const vixI = indicators.find((i) => i.key === "vix");
-        const hyI = indicators.find((i) => i.key === "hyspread");
-        const moveI = indicators.find((i) => i.key === "move");
-        setDollar({
-          dxy: dxyI?.current ?? null,
-          dxyDelta: dxyI?.delta30d ?? null,
-          vix: vixI?.current ?? null,
-          hySpread: hyI?.current ?? null,
-          move: moveI?.current ?? null,
-        });
-      })
-      .catch(() => {});
+      fetch("/api/macro")
+        .then((r) => r.json())
+        .then((d) => {
+          const indicators = d.indicators as { key: string; current: number | null; delta30d: number | null }[];
+          const dxyI = indicators.find((i) => i.key === "dxy");
+          const vixI = indicators.find((i) => i.key === "vix");
+          const hyI = indicators.find((i) => i.key === "hyspread");
+          const moveI = indicators.find((i) => i.key === "move");
+          setDollar({
+            dxy: dxyI?.current ?? null,
+            dxyDelta: dxyI?.delta30d ?? null,
+            vix: vixI?.current ?? null,
+            hySpread: hyI?.current ?? null,
+            move: moveI?.current ?? null,
+          });
+        })
+        .catch(() => {});
 
-    fetch("/api/fng")
-      .then((r) => r.json())
-      .then((d) => {
-        setFng({ value: d.current?.v ?? null, label: d.current?.label ?? null });
-      })
-      .catch(() => {});
+      fetch("/api/fng")
+        .then((r) => r.json())
+        .then((d) => {
+          setFng({ value: d.current?.v ?? null, label: d.current?.label ?? null });
+        })
+        .catch(() => {});
 
-    fetch("/api/ai/frontier-models")
-      .then((r) => r.json())
-      .then((d) => {
-        const points = d.points as { label: string; intelligenceIndex: number; blendedUsdPerMillion: number }[];
-        if (points.length === 0) return;
-        const sorted = [...points].sort((a, b) => b.intelligenceIndex - a.intelligenceIndex);
-        const cheapest = [...points].sort((a, b) => a.blendedUsdPerMillion - b.blendedUsdPerMillion);
-        setAi({
-          topModel: sorted[0].label,
-          topIndex: sorted[0].intelligenceIndex,
-          cheapestModel: cheapest[0].label,
-          cheapestCost: cheapest[0].blendedUsdPerMillion,
-          modelCount: points.length,
-        });
-      })
-      .catch(() => {});
+      fetch("/api/ai/frontier-models")
+        .then((r) => r.json())
+        .then((d) => {
+          const points = d.points as { label: string; intelligenceIndex: number; blendedUsdPerMillion: number }[];
+          if (points.length === 0) return;
+          const sorted = [...points].sort((a, b) => b.intelligenceIndex - a.intelligenceIndex);
+          const cheapest = [...points].sort((a, b) => a.blendedUsdPerMillion - b.blendedUsdPerMillion);
+          setAi({
+            topModel: sorted[0].label,
+            topIndex: sorted[0].intelligenceIndex,
+            cheapestModel: cheapest[0].label,
+            cheapestCost: cheapest[0].blendedUsdPerMillion,
+            modelCount: points.length,
+          });
+        })
+        .catch(() => {});
 
-    fetch("/api/home-sparklines")
-      .then((r) => r.json())
-      .then((d) => setSparks({ btc: d.btc ?? [], dxy: d.dxy ?? [], fng: d.fng ?? [] }))
-      .catch(() => {});
+      fetch("/api/home-sparklines")
+        .then((r) => r.json())
+        .then((d) => setSparks({ btc: d.btc ?? [], dxy: d.dxy ?? [], fng: d.fng ?? [] }))
+        .catch(() => {});
 
-    fetch("/api/nuclear/market")
-      .then((r) => r.json())
-      .then((d) => {
-        const publicEquities = (d.publicEquities ?? []) as NuclearQuoteLite[];
-        const uraniumProxies = (d.uraniumProxies ?? []) as NuclearQuoteLite[];
-        const proxy = uraniumProxies[0];
-        setNuclear({
-          totalPublicMarketCapUsd: d.totalPublicMarketCapUsd ?? null,
-          weightedChangePercent: weightedChangePercent(publicEquities),
-          proxySymbol: proxy?.symbol ?? null,
-          proxyChangePercent: proxy?.changePercent ?? null,
-          quoteCount: publicEquities.length,
-        });
-      })
-      .catch(() => {});
+      fetch("/api/nuclear/market")
+        .then((r) => r.json())
+        .then((d) => {
+          const publicEquities = (d.publicEquities ?? []) as NuclearQuoteLite[];
+          const uraniumProxies = (d.uraniumProxies ?? []) as NuclearQuoteLite[];
+          const proxy = uraniumProxies[0];
+          setNuclear({
+            totalPublicMarketCapUsd: d.totalPublicMarketCapUsd ?? null,
+            weightedChangePercent: weightedChangePercent(publicEquities),
+            proxySymbol: proxy?.symbol ?? null,
+            proxyChangePercent: proxy?.changePercent ?? null,
+            quoteCount: publicEquities.length,
+          });
+        })
+        .catch(() => {});
+    }
+
+    loadData();
+    const interval = setInterval(loadData, 15 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

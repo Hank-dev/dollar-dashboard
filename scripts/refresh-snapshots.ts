@@ -10,7 +10,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { validateAiSnapshot, type AiSnapshot } from "../lib/aiSnapshot.schema";
 
 const ROSTER_IDS = {
-  players: ["nvidia", "alphabet", "microsoft", "amazon", "broadcom", "meta", "openai", "anthropic", "databricks", "cursor", "perplexity"],
+  players: ["nvidia", "alphabet", "microsoft", "amazon", "broadcom", "meta", "openai", "anthropic", "databricks", "cursor", "perplexity", "xai"],
   marketMetrics: ["capex-race", "private-valuation", "consumer-scale", "coding-agent", "open-pressure", "agent-reliability"],
   techSignals: ["frontier-models", "agents", "ai-ides", "compute-stack"],
 };

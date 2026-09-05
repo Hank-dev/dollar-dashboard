@@ -33,14 +33,23 @@ export function DailyBriefing() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchBriefing(controller.signal)
-      .then(setData)
-      .catch((reason: unknown) => {
-        if (reason instanceof DOMException && reason.name === "AbortError") return;
-        setError(reason instanceof Error ? reason.message : "unknown error");
-      })
-      .finally(() => setLoading(false));
-    return () => controller.abort();
+    function load(signal?: AbortSignal) {
+      setLoading(true);
+      setError(null);
+      fetchBriefing(signal)
+        .then(setData)
+        .catch((reason: unknown) => {
+          if (reason instanceof DOMException && reason.name === "AbortError") return;
+          setError(reason instanceof Error ? reason.message : "unknown error");
+        })
+        .finally(() => setLoading(false));
+    }
+    load(controller.signal);
+    const interval = setInterval(() => load(), 24 * 60 * 60 * 1000);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, []);
 
   function loadBriefing() {
