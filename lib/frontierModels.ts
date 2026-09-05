@@ -34,6 +34,13 @@ export const FRONTIER_MODEL_CANDIDATES: FrontierModelCandidate[] = [
     openRouterId: "openai/gpt-5.5",
   },
   {
+    id: "claude-opus-4-8",
+    label: "Claude Opus 4.8",
+    provider: "Anthropic",
+    aiApiCostPath: "/models/anthropic/claude-opus-4-8",
+    openRouterId: "anthropic/claude-opus-4.8",
+  },
+  {
     id: "claude-opus-4-7",
     label: "Claude Opus 4.7",
     provider: "Anthropic",

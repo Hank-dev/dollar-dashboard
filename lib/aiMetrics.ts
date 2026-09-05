@@ -83,6 +83,7 @@ const PLAYER_ROSTER: PlayerRoster[] = [
   { id: "meta", kind: "public", name: "Meta", ticker: "META", category: "Consumer AI and open models" },
   { id: "openai", kind: "private", name: "OpenAI", category: "Frontier lab and agent platform" },
   { id: "anthropic", kind: "private", name: "Anthropic", category: "Frontier lab" },
+  { id: "xai", kind: "public", name: "SpaceX / xAI", ticker: "SPCX", category: "Frontier lab and compute" },
   { id: "databricks", kind: "private", name: "Databricks", category: "Data and AI platform" },
   { id: "cursor", kind: "private", name: "Cursor / Anysphere", category: "Coding agent" },
   { id: "perplexity", kind: "private", name: "Perplexity", category: "Answer engine and agents" },

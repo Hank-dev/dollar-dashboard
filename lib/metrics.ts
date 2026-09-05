@@ -66,7 +66,7 @@ const vixStatus = (v: number): Status =>
   v < 15 ? "calm" : v < 22 ? "neutral" : v < 30 ? "elevated" : "stressed";
 
 const goldStatus = (v: number): Status =>
-  v >= 3500 ? "elevated" : v >= 2500 ? "neutral" : "calm";
+  v >= 4000 ? "elevated" : v >= 2500 ? "neutral" : "calm";
 
 const brentStatus = (v: number): Status =>
   v >= 95 ? "elevated" : v >= 80 ? "neutral" : v >= 60 ? "neutral" : "calm";
@@ -81,22 +81,24 @@ const intCommas = (v: number) =>
   v.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
 // --- Fallback values (used when FRED key missing or all fetches fail) ------
-// Snapshot from 2026-05-22 close. Keeps the dashboard rendering even with
-// no API key configured.
+// Snapshot refreshed 2026-09-03 using the latest official Treasury close (Sep 2)
+// and current September 3 live quotes. Verified against the U.S. Treasury, CBOE,
+// CoinGecko, Gold API, exchangerate-api, FRED, and TradingView.
+// Keeps the dashboard rendering even with no API key configured.
 
 export const FALLBACK: RawData = {
-  ust30: { date: "2026-05-22", value: 5.06 },
-  ust10: { date: "2026-05-22", value: 4.56 },
-  ust2: { date: "2026-05-22", value: 4.13 },
-  fedTargetUpper: { date: "2026-05-22", value: 3.75 },
-  fedTargetLower: { date: "2026-05-22", value: 3.5 },
-  dxyBroad: { date: "2026-05-22", value: 121.0 },
-  usdjpy: { date: "2026-05-22", value: 159.2 },
-  vix: { date: "2026-05-22", value: 16.7 },
-  sp500: { date: "2026-05-22", value: 7473 },
-  gold: { date: "2026-05-22", value: 4523 },
-  brent: { date: "2026-05-22", value: 100 },
-  bitcoin: 74600,
+  ust30: { date: "2026-09-02", value: 5.27 }, // U.S. Treasury: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026 (Sep 2 close, 5.27%)
+  ust10: { date: "2026-09-02", value: 4.79 }, // U.S. Treasury: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026 (Sep 2 close, 4.79%)
+  ust2: { date: "2026-09-02", value: 4.39 }, // U.S. Treasury: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026 (Sep 2 close, 4.39%)
+  fedTargetUpper: { date: "2026-09-02", value: 3.75 }, // Federal Reserve: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DFEDTARU (Sep 2, upper bound 3.75%; no FOMC since, unchanged)
+  fedTargetLower: { date: "2026-09-02", value: 3.5 }, // Federal Reserve: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DFEDTARL (Sep 2, lower bound 3.50%; unchanged)
+  dxyBroad: { date: "2026-09-03", value: 99.367 }, // TradingView: https://scanner.tradingview.com/america/scan (TVC:DXY, Sep 3 quote, 99.367)
+  usdjpy: { date: "2026-09-03", value: 159.088772 }, // exchangerate-api: https://open.er-api.com/v6/latest/USD (Sep 3 mid, 159.088772)
+  vix: { date: "2026-09-02", value: 15.2 }, // CBOE: https://cdn.cboe.com/api/global/delayed_quotes/quotes/_VIX.json (Sep 2 close, 15.20)
+  sp500: { date: "2026-09-02", value: 7666.6 }, // FRED: https://fred.stlouisfed.org/graph/fredgraph.csv?id=SP500 (Sep 2 close, 7,666.60)
+  gold: { date: "2026-09-03", value: 4433.4 }, // Gold API: https://api.gold-api.com/price/XAU (Sep 3 spot, $4,433.40/oz)
+  brent: { date: "2026-09-03", value: 94.26 }, // TradingView: https://scanner.tradingview.com/futures/scan (NYMEX:BZ1! front month, Sep 3 quote, $94.26/bbl)
+  bitcoin: 77751.0, // CoinGecko: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd (Sep 3 spot, $77,751)
 };
 
 // --- Builder ---------------------------------------------------------------
@@ -211,7 +213,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "USD index (broad)",
       value: num1(dxyV),
       status: "neutral",
-      context: "Fed broad TWI · proxy for DXY",
+      context: asOf(r.dxyBroad?.date),
     },
     {
       id: "usdjpy",
@@ -225,17 +227,17 @@ export function buildDashboard(raw: RawData): DashboardData {
       id: "jgb10",
       group: "dollar",
       label: "Japan 10Y JGB",
-      value: "~2.8%",
+      value: "~2.95%", // TradingView: https://scanner.tradingview.com/global/scan (TVC:JP10Y, Sep 3 2026, 2.954%)
       status: "elevated",
-      context: "highest since ~1997 · static",
+      context: "2.95% (Sep 3) · BOJ at 1.0%", // https://scanner.tradingview.com/global/scan and https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf
     },
     {
       id: "bojrate",
       group: "dollar",
       label: "BOJ policy rate",
-      value: "0.75%",
-      status: "elevated",
-      context: "→ 1.0% expected June · static",
+      value: "1.0%", // BOJ: https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf (held at 1.0% on Jul 31 2026; last hiked Jun 17)
+      status: "stressed",
+      context: "held at 1.0% · Ueda signals Sept hike as bets mount", // Reuters/Japan Times (Sep 3 2026): Ueda hints at September hike; Bessent pressed BOJ; yen near 159
     },
     // Risk appetite & havens
     {
@@ -260,7 +262,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "Gold",
       value: dollars0(goldV),
       status: goldStatus(goldV),
-      context: goldV >= 3500 ? "haven / debasement bid" : asOf(r.gold?.date),
+      context: goldV >= 4000 ? "haven / debasement bid" : asOf(r.gold?.date),
     },
     {
       id: "bitcoin",
@@ -268,7 +270,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "Bitcoin",
       value: `$${(btcV / 1000).toFixed(1)}k`,
       status: "neutral",
-      context: "CoinGecko spot",
+      context: "CoinGecko spot · Sep 3", // https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
     },
     {
       id: "brent",

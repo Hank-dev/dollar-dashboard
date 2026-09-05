@@ -5,21 +5,36 @@
 //
 // Response shape per metric is: [{ d: "YYYY-MM-DD", unixTs: 1234, <key>: number }, ...]
 const BASE = "https://bitcoin-data.com/api/v1";
+const CACHE_TTL_MS = 3_600_000; // 1 hour
 
 export type BdPoint = { t: number; v: number };
+
+const seriesCache = new Map<
+  string,
+  { points: BdPoint[]; at: number }
+>();
 
 export async function fetchBitcoinDataSeries(
   path: string,
   valueKey: string,
 ): Promise<BdPoint[]> {
+  const cacheKey = `${path}:${valueKey}`;
+  const cached = seriesCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
+    return cached.points;
+  }
+
   const res = await fetch(`${BASE}/${path}`, {
-    next: { revalidate: 21_600 }, // 6h
     headers: { Accept: "application/json" },
   });
   if (!res.ok) {
-    throw new Error(
-      `bitcoin-data.com ${path} ${res.status}: ${await res.text()}`,
-    );
+    // Return stale cache on rate-limit if available
+    if (res.status === 429 && cached) {
+      return cached.points;
+    }
+    // On any failure without cache, return empty — caller handles nulls gracefully
+    console.warn(`bitcoin-data.com ${path} ${res.status}`);
+    return [];
   }
   const rows = (await res.json()) as Record<string, number | string>[];
   const out: BdPoint[] = [];
@@ -32,6 +47,7 @@ export async function fetchBitcoinDataSeries(
     out.push({ t: ts, v: num });
   }
   out.sort((a, b) => a.t - b.t);
+  seriesCache.set(cacheKey, { points: out, at: Date.now() });
   return out;
 }
 
