@@ -1,0 +1,292 @@
+{
+  "as_of": "2026-08-31",
+  "verdict": "Nuclear's demand case remains strong, but the investable signal is still execution: the global fleet is about 400 GWe with about 75 reactors under construction, at least five DOE-authorised test reactors have now reached criticality (Oklo's Groves on August 6, with Westinghouse's eVinci completing cold criticality testing at NCERC on August 25), and DOE conditionally committed $17.5B for ten 1.1 GW AP1000s. None of those advanced-build milestones is commercial capacity yet. Uranium firmed to $89.85/lb, while HALEU remains constrained despite new Centrus-X-Energy prepayment contracting. Existing fleets, restarts, and fuel-cycle bottlenecks still offer the clearest risk-adjusted exposure; advanced developers remain execution-heavy.",
+  "players": [
+    {
+      "id": "constellation",
+      "kind": "public",
+      "name": "Constellation Energy",
+      "ticker": "CEG",
+      "category": "Nuclear fleet and clean power PPAs",
+      "scale": "$98.1B",
+      "role": "Largest pure-play U.S. nuclear generation platform.",
+      "exposure": "Existing fleet, Crane restart, and large corporate PPAs make it the clearest public-market nuclear utility proxy.",
+      "status": "elevated",
+      "source": "Stock Analysis, Constellation market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "vistra",
+      "kind": "public",
+      "name": "Vistra",
+      "ticker": "VST",
+      "category": "Merchant power and nuclear PPAs",
+      "scale": "$46.0B",
+      "role": "Independent power producer with nuclear assets and data-center contracting exposure.",
+      "exposure": "Nuclear output is becoming more valuable as hyperscalers pay for firm clean power.",
+      "status": "elevated",
+      "source": "Stock Analysis, Vistra market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "cameco",
+      "kind": "public",
+      "name": "Cameco",
+      "ticker": "CCJ",
+      "category": "Uranium and Westinghouse exposure",
+      "scale": "$43.6B",
+      "role": "Major uranium producer and strategic nuclear-services owner.",
+      "exposure": "Levered to uranium contracting, mine restarts, and the Westinghouse reactor-services platform.",
+      "status": "elevated",
+      "source": "Stock Analysis, Cameco market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "bwxt",
+      "kind": "public",
+      "name": "BWX Technologies",
+      "ticker": "BWXT",
+      "category": "Nuclear components and naval reactors",
+      "scale": "$14.0B",
+      "role": "Specialized nuclear manufacturing, services, and defense nuclear supplier.",
+      "exposure": "More industrial and defense nuclear than merchant power; lower concept risk than pre-revenue reactor developers.",
+      "status": "neutral",
+      "source": "Stock Analysis, BWX Technologies market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "oklo",
+      "kind": "public",
+      "name": "Oklo",
+      "ticker": "OKLO",
+      "category": "Advanced reactor developer",
+      "scale": "$7.5B",
+      "role": "Fast-reactor and fuel-cycle development platform.",
+      "exposure": "High optionality but high execution and licensing risk; no commercial reactor fleet yet.",
+      "status": "stressed",
+      "source": "Stock Analysis, Oklo market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "uranium-energy",
+      "kind": "public",
+      "name": "Uranium Energy",
+      "ticker": "UEC",
+      "category": "Uranium developer",
+      "scale": "$6.1B",
+      "role": "U.S.-oriented uranium production optionality.",
+      "exposure": "Tied to uranium price, contracting, and restart or development execution rather than reactor sales.",
+      "status": "elevated",
+      "source": "Stock Analysis, Uranium Energy market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "nuscale",
+      "kind": "public",
+      "name": "NuScale Power",
+      "ticker": "SMR",
+      "category": "Light-water SMR developer",
+      "scale": "$4.0B",
+      "role": "Certified U.S. SMR technology with commercialization risk.",
+      "exposure": "Regulatory first-mover status matters, but project economics and customer conversion remain the proof points.",
+      "status": "stressed",
+      "source": "Stock Analysis, NuScale market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "centrus",
+      "kind": "public",
+      "name": "Centrus Energy",
+      "ticker": "LEU",
+      "category": "Enrichment and HALEU",
+      "scale": "$3.5B",
+      "role": "Nuclear fuel-cycle and enrichment bottleneck exposure.",
+      "exposure": "Strategically important if advanced reactors need domestic HALEU at commercial scale.",
+      "status": "elevated",
+      "source": "Stock Analysis, Centrus market cap",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "microsoft-crane",
+      "kind": "project",
+      "name": "Microsoft / Constellation",
+      "ticker": null,
+      "category": "Nuclear restart",
+      "scale": "835 MW",
+      "role": "20-year PPA supporting the restart of the Crane Clean Energy Center.",
+      "exposure": "Near-term nuclear growth may come from restarts and uprates before new SMRs arrive.",
+      "status": "elevated",
+      "source": "Constellation / Microsoft Crane PPA",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "google-kairos",
+      "kind": "project",
+      "name": "Google / Kairos Power",
+      "ticker": null,
+      "category": "Advanced reactors",
+      "scale": "Up to 500 MWe",
+      "role": "Corporate agreement for multiple Kairos deployments through 2035.",
+      "exposure": "Hyperscalers are willing to contract ahead of commercial advanced-reactor maturity.",
+      "status": "neutral",
+      "source": "Google / Kairos agreement",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "amazon-xenergy",
+      "kind": "project",
+      "name": "Amazon / X-energy",
+      "ticker": null,
+      "category": "SMR campus",
+      "scale": "320–960 MW",
+      "role": "Cascade project with Energy Northwest and Xe-100 reactors.",
+      "exposure": "Large enough to matter for data centers, but still depends on licensing, financing, and construction.",
+      "status": "neutral",
+      "source": "Amazon / X-energy Cascade",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "meta-nuclear",
+      "kind": "project",
+      "name": "Meta nuclear portfolio",
+      "ticker": null,
+      "category": "Corporate nuclear procurement",
+      "scale": "Up to 6.6 GW",
+      "role": "Agreements across existing and new nuclear to support AI power demand.",
+      "exposure": "Nuclear is being bought as firm clean capacity, not only as branding.",
+      "status": "elevated",
+      "source": "Meta nuclear procurement",
+      "as_of": "2026-08-03"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "global-capacity",
+      "group": "Power demand",
+      "label": "Operating capacity",
+      "value": "400 GWe",
+      "status": "neutral",
+      "context": "440 reactors; about 400 GWe operable",
+      "detail": "The World Nuclear Association counts 440 operable power reactors totaling about 400 GWe across more than 30 countries. Nuclear supplies about 9% of global electricity.",
+      "source": "World Nuclear Association",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "under-construction",
+      "group": "Technology readiness",
+      "label": "Under construction",
+      "value": "75 reactors",
+      "status": "elevated",
+      "context": "Pipeline concentrated in Asia",
+      "detail": "About 75 reactors are under construction worldwide alongside the operable fleet. The pipeline is a long-duration buildout, not near-term generating capacity.",
+      "source": "World Nuclear Association",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "new-starts",
+      "group": "Policy and contracting",
+      "label": "Planned U.S. builds",
+      "value": "10 × AP1000",
+      "status": "elevated",
+      "context": "$17.5B conditional loans; 11 GW total",
+      "detail": "DOE conditionally committed financing for long-lead items at five two-reactor sites. Each site still needs partner equity and final loan conditions before funding.",
+      "source": "U.S. Department of Energy",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "uranium-demand",
+      "group": "Fuel cycle",
+      "label": "Uranium price",
+      "value": "$89.85/lb",
+      "status": "elevated",
+      "context": "28 Aug; +3.75% on the month; +17.22% year over year",
+      "detail": "Trading Economics reported uranium at $89.85/lb on 28 August. This figure is a dated snapshot, not a live quote in the desktop app.",
+      "source": "Trading Economics",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "haleu",
+      "group": "Fuel cycle",
+      "label": "HALEU availability",
+      "value": "Constrained",
+      "status": "stressed",
+      "context": "Centrus–X-energy prepayments; no U.S. commercial output yet",
+      "detail": "A Centrus–X-energy enrichment and prepayment agreement eases the funding problem and backs a contingent LEU/HALEU backlog, but there is still no commercial domestic HALEU source in production.",
+      "source": "World Nuclear News",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "data-center-pull",
+      "group": "Power demand",
+      "label": "Hyperscaler pull",
+      "value": "485 → 950 TWh",
+      "status": "elevated",
+      "context": "IEA data-centre demand, 2025 to 2030",
+      "detail": "The IEA expects data-centre electricity consumption to roughly double from 485 TWh in 2025 to 950 TWh in 2030, which strengthens the case for firm clean power.",
+      "source": "IEA",
+      "as_of": "2026-08-03"
+    }
+  ],
+  "signals": [
+    {
+      "id": "restart-uprate",
+      "track": "Reactors",
+      "label": "Restarts and uprates are the near-term path",
+      "status": "elevated",
+      "summary": "Holtec reports that Palisades has completed its major restart projects and shifted to maintenance, testing, inspection, and operational readiness. More than 5,000 activities remain before fuel load and startup.",
+      "watch": "Watch fuel load, remaining NRC approvals, the startup milestone, and Crane's 2027 restart schedule.",
+      "source": "Holtec / Palisades restart reporting",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "smr-commercial",
+      "track": "Reactors",
+      "label": "SMRs are demand-backed but not yet routine infrastructure",
+      "status": "elevated",
+      "summary": "TerraPower began Natrium construction after NRC approval and contracted Doosan Enerbility for equipment at Kemmerer. Westinghouse completed zero-power criticality testing of a one-fifth-scale eVinci reactor at NCERC. Commercial economics remain unproven.",
+      "watch": "Watch equipment deliveries, TerraPower's planned Part 50 filing, and whether test-reactor results convert into licensed commercial plants.",
+      "source": "American Nuclear Society, eVinci criticality",
+      "as_of": "2026-08-31"
+    },
+    {
+      "id": "haleu-bottleneck",
+      "track": "Fuel",
+      "label": "Advanced fuel is a gating item",
+      "status": "stressed",
+      "summary": "Standard Nuclear reports construction substantially complete at its Tennessee and Idaho TRISO sites, and Centrus and X-energy signed an enrichment and prepayment agreement. Supply still has to start at commercial volume.",
+      "watch": "Watch TRISO startup, initial MTU output, and whether Centrus's Piketon expansion delivers contracted volumes.",
+      "source": "World Nuclear News, HALEU contracting",
+      "as_of": "2026-08-06"
+    },
+    {
+      "id": "corporate-ppa",
+      "track": "Customers",
+      "label": "Hyperscalers are becoming anchor customers",
+      "status": "elevated",
+      "summary": "Alphabet, Amazon, Meta, and Microsoft have all signed nuclear PPAs that could provide about 6.9 GW by the early 2030s. Projects still face regulatory and construction dependencies.",
+      "watch": "Watch named sites, binding offtake, NRC and interconnection progress, and whether 2027 restart targets become firm milestones.",
+      "source": "Carnegie Endowment, hyperscaler commitments",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "geopolitics",
+      "track": "Risk",
+      "label": "Supply-chain geopolitics define the investable map",
+      "status": "elevated",
+      "summary": "DOE's conditional loan package targets ten new large reactors through up to five loans for five two-reactor sites. The financing supports long-lead items, not funded builds, until partners, equity, and final conditions are in place.",
+      "watch": "Watch partner names, final loan conditions, equity commitments, and long-lead purchase orders.",
+      "source": "U.S. Department of Energy",
+      "as_of": "2026-08-03"
+    },
+    {
+      "id": "waste-licensing",
+      "track": "Risk",
+      "label": "Licensing and waste remain public-trust constraints",
+      "status": "neutral",
+      "summary": "The NRC has proposed revisions to ALARA and reactor-licensing requirements, and DOE amended WIPP's record of decision to add disposal panels and extend the operating horizon. Siting, waste, and public trust remain separate constraints.",
+      "watch": "Watch the comment process, final NRC rules, court challenges, and WIPP panel excavation.",
+      "source": "American Nuclear Society, WIPP",
+      "as_of": "2026-08-31"
+    }
+  ]
+}

@@ -40,6 +40,21 @@ flowchart LR
 
 The key design choice is the boundary between **facts** and **interpretation**. Metric values, dates, and sources are structured data; model output is an optional narrative layer.
 
+## Local desktop app
+
+The snappy local client is a native Rust app in `desktop/`. It opens the same five desks — home, Bitcoin, dollar, AI, and nuclear — from a disk cache, then refreshes public sources in the background. No Node server and no API keys.
+
+```bash
+cd desktop
+cargo run --release
+```
+
+`1`–`5` switch desks, `R` refreshes, and `Esc` clears the selection. `cargo run --release -- --fetch` prints one snapshot and exits.
+
+AI and nuclear evidence stays on the dated snapshot shipped with the repo. Equity, rates, dollar, and Bitcoin prints are live public feeds. Rule readings are explicit thresholds, not a model call.
+
+The Next.js app below is the browser version of the same monitor.
+
 ## Run locally
 
 Requires Node.js 20.9 or newer.
