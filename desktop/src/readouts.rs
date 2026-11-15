@@ -1984,8 +1984,19 @@ fn kraken_volume(client: &Client) -> Option<Vec<Point>> {
     (!out.is_empty()).then_some(out)
 }
 
+/// SEC asks automated clients to identify themselves with a contact. It comes
+/// from `SEC_CONTACT` (same as the web app); a contact address does not
+/// belong in a public repository.
+fn sec_user_agent(contact: Option<&str>) -> String {
+    match contact.map(str::trim).filter(|c| !c.is_empty()) {
+        Some(contact) => format!("market-monitor/0.1 {contact} (desktop)"),
+        None => "market-monitor/0.1 (desktop)".to_string(),
+    }
+}
+
 fn edgar_filings(client: &Client) -> Option<Vec<Filing>> {
-    let ua = "dollar-dashboard/0.1 johanneshankoe@gmail.com (local Market Monitor)";
+    let ua = sec_user_agent(std::env::var("SEC_CONTACT").ok().as_deref());
+    let ua = ua.as_str();
     let atom = get_headed(
         client,
         "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001050446&type=8-K&dateb=&owner=include&count=20&output=atom",
@@ -2518,6 +2529,16 @@ pub(crate) fn first_number(text: &str, patterns: &[&str]) -> Option<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sec_user_agent_takes_contact_from_the_environment_value() {
+        assert_eq!(
+            sec_user_agent(Some(" ops@example.com ")),
+            "market-monitor/0.1 ops@example.com (desktop)"
+        );
+        assert_eq!(sec_user_agent(Some("  ")), "market-monitor/0.1 (desktop)");
+        assert_eq!(sec_user_agent(None), "market-monitor/0.1 (desktop)");
+    }
 
     #[test]
     fn regime_score_needs_every_input() {
