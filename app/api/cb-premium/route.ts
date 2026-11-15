@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchCoinbasePremium } from "@/lib/btc/data/cbPremium";
 import type { CbPremiumResponse } from "@/lib/btc/types";
 
-export const revalidate = 600; // 10 min
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("cb-premium", 600, async () => {
   try {
     const r = await fetchCoinbasePremium(48);
     const body: CbPremiumResponse = {
@@ -20,4 +21,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});

@@ -39,6 +39,8 @@ interface NuclearData {
   proxySymbol: string | null;
   proxyChangePercent: number | null;
   quoteCount: number;
+  uraniumHistory: number[];
+  uraniumAsOf: string | null;
 }
 
 interface NuclearQuoteLite {
@@ -118,6 +120,8 @@ export function HomeDashCards() {
     proxySymbol: null,
     proxyChangePercent: null,
     quoteCount: 0,
+    uraniumHistory: [],
+    uraniumAsOf: null,
   });
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const [sparks, setSparks] = useState<{ btc: number[]; dxy: number[]; fng: number[] }>({ btc: [], dxy: [], fng: [] });
@@ -201,12 +205,18 @@ export function HomeDashCards() {
           const publicEquities = (d.publicEquities ?? []) as NuclearQuoteLite[];
           const uraniumProxies = (d.uraniumProxies ?? []) as NuclearQuoteLite[];
           const proxy = uraniumProxies[0];
+          const uraniumPoints = (d.uraniumIndex?.points ?? []) as { date: string; value: number }[];
           setNuclear({
             totalPublicMarketCapUsd: d.totalPublicMarketCapUsd ?? null,
             weightedChangePercent: weightedChangePercent(publicEquities),
             proxySymbol: proxy?.symbol ?? null,
             proxyChangePercent: proxy?.changePercent ?? null,
             quoteCount: publicEquities.length,
+            uraniumHistory: uraniumPoints
+              .filter((point) => Number.isFinite(point.value))
+              .sort((a, b) => a.date.localeCompare(b.date))
+              .map((point) => point.value),
+            uraniumAsOf: d.uraniumIndex?.asOf ?? null,
           });
         })
         .catch(() => {});
@@ -236,8 +246,6 @@ export function HomeDashCards() {
     dollar.vix != null
       ? dollar.vix > 25 ? "stressed" : dollar.vix > 18 ? "elevated" : dollar.vix < 14 ? "calm" : "neutral"
       : "—";
-
-  const nuclearSpark = [42, 43, 44, 47, 51, 55, 58, 62, 67, 71, 78];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 p-5">
@@ -314,17 +322,18 @@ export function HomeDashCards() {
         route="/nuclear"
         accentVar="var(--dash-nuclear)"
         sparkColor="oklch(0.82 0.11 200)"
-        sparkData={nuclearSpark}
-        sparkLabel="buildout · signal"
+        sparkData={nuclear.uraniumHistory}
+        sparkLabel="Uranium · monthly"
+        sparkNote={nuclear.uraniumAsOf ? `FRED · through ${nuclear.uraniumAsOf}` : "FRED · history unavailable"}
         heroValue={
           nuclear.totalPublicMarketCapUsd != null
             ? fmtUsdCompact(nuclear.totalPublicMarketCapUsd)
-            : "78 GW"
+            : "—"
         }
         heroMeta={
           nuclear.totalPublicMarketCapUsd != null
             ? "tracked public cap"
-            : "under construction"
+            : "tracked public cap unavailable"
         }
         stats={[
           {
@@ -358,7 +367,7 @@ export function HomeDashCards() {
 
 function DashCard({
   href, idx, name, nameAccent, route, accentVar, sparkColor,
-  sparkData, sparkLabel, heroValue, heroMeta, heroMetaDir, stats, summary,
+  sparkData, sparkLabel, sparkNote, heroValue, heroMeta, heroMetaDir, stats, summary,
 }: {
   href: string;
   idx: string;
@@ -369,6 +378,7 @@ function DashCard({
   sparkColor: string;
   sparkData: number[];
   sparkLabel: string;
+  sparkNote?: string;
   heroValue: string;
   heroMeta: string;
   heroMetaDir?: "up" | "down";
@@ -410,11 +420,11 @@ function DashCard({
             )}
           </div>
         </div>
-        <div className="w-[140px]">
+        <div className="w-[140px]" title={sparkNote}>
           <div className="mono text-[9.5px] tracking-[0.14em] uppercase text-[var(--text-tertiary)] text-right mb-1">
             {sparkLabel}
           </div>
-          <svg className="block w-full h-9" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+          <svg className="block w-full h-9" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={sparkNote ? `${sparkLabel}: ${sparkNote}` : sparkLabel}>
             {hasSparkData ? (
               <>
                 <defs>
@@ -427,9 +437,14 @@ function DashCard({
                 <path d={line} fill="none" stroke={sparkColor} strokeWidth={1.2} />
               </>
             ) : (
-              <text x="70" y="20" textAnchor="middle" fill="var(--text-tertiary)" fontSize="9" fontFamily="var(--font-mono)">loading</text>
+              <text x="70" y="20" textAnchor="middle" fill="var(--text-tertiary)" fontSize="9" fontFamily="var(--font-mono)">{sparkNote ? "unavailable" : "loading"}</text>
             )}
           </svg>
+          {sparkNote && (
+            <div className="mono mt-1 text-right text-[9px] leading-tight text-[var(--text-tertiary)]">
+              {sparkNote}
+            </div>
+          )}
         </div>
       </div>
 

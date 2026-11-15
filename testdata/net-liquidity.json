@@ -1,0 +1,65 @@
+{
+  "description": "Net liquidity contract in native FRED units. WALCL and WTREGEN are weekly millions of USD; RRPONTSYD is daily billions of USD. Results are daily billions, forward-filled only after all components have observations.",
+  "units": {
+    "walcl": "millions_usd",
+    "tga": "millions_usd",
+    "rrp": "billions_usd",
+    "result": "billions_usd"
+  },
+  "sources": {
+    "walcl": "https://fred.stlouisfed.org/series/WALCL",
+    "tga": "https://fred.stlouisfed.org/series/WTREGEN",
+    "rrp": "https://fred.stlouisfed.org/series/RRPONTSYD"
+  },
+  "cases": [
+    {
+      "name": "native FRED units",
+      "walcl": [{ "t": 0, "v": 8000000 }],
+      "tga": [{ "t": 0, "v": 500000 }],
+      "rrp": [{ "t": 0, "v": 2000 }],
+      "expected": [{ "t": 0, "v": 5500 }]
+    },
+    {
+      "name": "daily forward fill preserves each component's unit",
+      "walcl": [{ "t": 0, "v": 8000000 }],
+      "tga": [{ "t": 0, "v": 500000 }, { "t": 172800, "v": 600000 }],
+      "rrp": [{ "t": 0, "v": 2000 }, { "t": 86400, "v": 1500 }],
+      "expected": [{ "t": 0, "v": 5500 }, { "t": 86400, "v": 6000 }, { "t": 172800, "v": 5900 }]
+    },
+    {
+      "name": "no result before all components begin",
+      "walcl": [{ "t": 0, "v": 8000000 }],
+      "tga": [{ "t": 86400, "v": 500000 }],
+      "rrp": [{ "t": 172800, "v": 2000 }],
+      "expected": [{ "t": 172800, "v": 5500 }]
+    },
+    {
+      "name": "a reported zero RRP is valid",
+      "walcl": [{ "t": 0, "v": 8000000 }],
+      "tga": [{ "t": 0, "v": 500000 }],
+      "rrp": [{ "t": 0, "v": 0 }],
+      "expected": [{ "t": 0, "v": 7500 }]
+    },
+    {
+      "name": "missing WALCL is unavailable",
+      "walcl": [],
+      "tga": [{ "t": 0, "v": 500000 }],
+      "rrp": [{ "t": 0, "v": 2000 }],
+      "expected": []
+    },
+    {
+      "name": "missing TGA is not a zero balance",
+      "walcl": [{ "t": 0, "v": 8000000 }],
+      "tga": [],
+      "rrp": [{ "t": 0, "v": 2000 }],
+      "expected": []
+    },
+    {
+      "name": "missing RRP is not a zero balance",
+      "walcl": [{ "t": 0, "v": 8000000 }],
+      "tga": [{ "t": 0, "v": 500000 }],
+      "rrp": [],
+      "expected": []
+    }
+  ]
+}

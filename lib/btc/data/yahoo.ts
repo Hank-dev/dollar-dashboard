@@ -36,6 +36,7 @@ async function fetchOne(
   const res = await fetch(url, {
     next: { revalidate: 6 * 3600 },
     headers: BROWSER_HEADERS,
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`Yahoo ${symbol} ${res.status}`);
   const j = (await res.json()) as ChartResp;

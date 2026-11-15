@@ -37,7 +37,13 @@ export default function AskBox({
       });
       if (!res.ok || !res.body) {
         const text = await res.text().catch(() => "");
-        throw new Error(text || `Request failed (${res.status})`);
+        let message = text;
+        try {
+          message = (JSON.parse(text) as { error?: string }).error ?? text;
+        } catch {
+          // plain-text error body
+        }
+        throw new Error(message || `Request failed (${res.status})`);
       }
       const reader = res.body.getReader();
       const dec = new TextDecoder();

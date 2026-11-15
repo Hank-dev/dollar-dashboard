@@ -80,6 +80,18 @@ export function RegimeScorePanel() {
         <div className="p-3 mono text-[12px] text-[var(--text-tertiary)]">
           loading…
         </div>
+      ) : data.currentScore == null || data.targetAllocPct == null ? (
+        <div className="flex flex-col h-full">
+          <div className="px-3 py-3 border-b border-[var(--border)] mono text-[11px] leading-relaxed text-[var(--text-secondary)]">
+            No composite score: {(data.missingInputs ?? []).join(", ") || "an input"}{" "}
+            unavailable. A missing input is not counted as neutral.
+          </div>
+          <div className="flex-shrink-0">
+            {data.inputs.map((i) => (
+              <InputRow key={i.key} input={i} />
+            ))}
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col h-full">
           {/* Headline: composite score + allocation */}

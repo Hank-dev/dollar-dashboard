@@ -1,275 +1,275 @@
 {
   "verdict": {
-    "text": "AI is no longer a feature cycle; it is a capital cycle. Public value is concentrated in compute and cloud, private value is concentrated in frontier labs and workflow agents, and the next proof point is whether agents can convert huge usage into durable, auditable revenue.",
-    "asOf": "2026-09-03"
+    "text": "AI is a capital cycle that has hit a supply ceiling. Usage keeps compounding (ChatGPT 1.2B weekly users, Gemini app 950M monthly), Nvidia guides to about $108B for the quarter while calling itself supply-constrained, and the four hyperscalers plan roughly $720–745B of 2026 capex. Private value is heading to public markets: Anthropic's leaked prospectus shows a ~$65B revenue run rate against a $42B 2025 loss ahead of a November IPO, while OpenAI now points to 2027. The proof points have moved from demand to supply (memory, power) and to keeping autonomous agents contained.",
+    "asOf": "2026-10-17"
   },
   "players": {
     "nvidia": {
-      "marketCap": "$5.41T",
-      "adoptionSignal": "Default accelerator stack for training and inference clusters.",
+      "marketCap": "$5.16T",
+      "adoptionSignal": "Fiscal Q2 revenue $96.2B (+106%), data center $89.0B; guides about $108B for Q3 and ~70% growth next fiscal year, supply-constrained.",
       "aiExposure": "Cleanest public-market proxy for frontier AI compute demand.",
       "status": "stressed",
       "source": {
-        "name": "Market cap $5.41T (TradingView scanner API, re-verified Sep 3 2026)",
-        "url": "https://stockanalysis.com/stocks/nvda/market-cap/",
-        "asOf": "2026-09-03",
-        "confidence": "medium"
+        "name": "NVIDIA Q2 FY2027 results (8-K, Aug 26 2026)",
+        "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000073/q2fy27pr.htm",
+        "asOf": "2026-08-26",
+        "confidence": "high"
       }
     },
     "alphabet": {
-      "marketCap": "$4.11T",
-      "adoptionSignal": "Gemini distribution spans Search, Android, Workspace, and Google Cloud.",
+      "marketCap": "$4.15T",
+      "adoptionSignal": "Gemini app at 950M monthly users and AI Mode at 1B+; Cloud revenue +82% to $24.8B with a $514B backlog (Q2 2026).",
       "aiExposure": "Owns TPUs, consumer distribution, ads surface, and enterprise cloud channel.",
       "status": "elevated",
       "source": {
-        "name": "Market cap $4.11T (TradingView scanner API, re-verified Sep 3 2026)",
-        "url": "https://stockanalysis.com/stocks/googl/market-cap/",
-        "asOf": "2026-09-03",
-        "confidence": "medium"
+        "name": "Alphabet Q2 2026 results (CNBC, Jul 22 2026)",
+        "url": "https://www.cnbc.com/2026/07/22/google-earnings-q2-goog-live-updates.html",
+        "asOf": "2026-07-22",
+        "confidence": "high"
       }
     },
     "microsoft": {
-      "marketCap": "$3.69T",
-      "adoptionSignal": "Copilot is the enterprise wedge; GitHub Copilot crossed 20M all-time users.",
+      "marketCap": "$3.93T",
+      "adoptionSignal": "Azure grew 43% and passed $100B for the fiscal year; Microsoft 365 Copilot has 30M+ paid seats and GitHub Copilot 50M users.",
       "aiExposure": "Azure, OpenAI partnership, Office, Windows, GitHub, and security workflow reach.",
       "status": "elevated",
       "source": {
-        "name": "Market cap $3.69T (TradingView scanner API, re-verified Sep 3 2026)",
-        "url": "https://stockanalysis.com/stocks/msft/market-cap/",
-        "asOf": "2026-09-03",
-        "confidence": "medium"
+        "name": "Microsoft FY26 Q4 results (CNBC, Jul 29 2026)",
+        "url": "https://www.cnbc.com/2026/07/29/microsoft-msft-q4-earnings-report-2026.html",
+        "asOf": "2026-07-29",
+        "confidence": "high"
       }
     },
     "amazon": {
-      "marketCap": "$2.75T",
-      "adoptionSignal": "Bedrock and AWS infrastructure anchor enterprise model deployment.",
+      "marketCap": "$2.70T",
+      "adoptionSignal": "AWS revenue +37% to $42.2B with a $496B backlog in Q2; 2026 capex raised to about $220B, mostly on memory costs.",
       "aiExposure": "AI demand flows through AWS compute, custom silicon, logistics, and retail assistants.",
       "status": "elevated",
       "source": {
-        "name": "Market cap $2.75T (TradingView scanner API, re-verified Sep 3 2026)",
-        "url": "https://stockanalysis.com/stocks/amzn/market-cap/",
-        "asOf": "2026-09-03",
+        "name": "Amazon Q2 2026 results (Jul 30 2026, earnings coverage)",
+        "url": "https://letsdatascience.com/news/aws-revenue-growth-outruns-available-ai-capacity-b0361d90",
+        "asOf": "2026-07-30",
         "confidence": "medium"
       }
     },
     "broadcom": {
-      "marketCap": "$1.75T",
-      "adoptionSignal": "Custom silicon and networking exposure rises with hyperscaler AI clusters.",
+      "marketCap": "$1.57T",
+      "adoptionSignal": "AI semiconductor revenue $16.7B (+221%) in fiscal Q3; guides $21.7B next quarter with Google, Anthropic and OpenAI among XPU customers.",
       "aiExposure": "Picks-and-shovels beneficiary when frontier labs diversify beyond merchant GPUs.",
       "status": "elevated",
       "source": {
-        "name": "Market cap $1.75T (TradingView scanner API, re-verified Sep 3 2026)",
-        "url": "https://stockanalysis.com/stocks/avgo/market-cap/",
-        "asOf": "2026-09-03",
-        "confidence": "medium"
+        "name": "Broadcom Q3 FY2026 results (Sep 2 2026)",
+        "url": "https://investors.broadcom.com/news-releases/news-release-details/broadcom-inc-announces-third-quarter-fiscal-year-2026-financial",
+        "asOf": "2026-09-02",
+        "confidence": "high"
       }
     },
     "meta": {
-      "marketCap": "$1.51T",
-      "adoptionSignal": "AI is distributed through feeds, ads, messaging, wearables, and open-weight models.",
+      "marketCap": "$1.81T",
+      "adoptionSignal": "Released Muse Wonder, its first frontier model, on Oct 12 and open-weighted Muse Spark; 2026 capex guidance $130–145B.",
       "aiExposure": "Monetizes AI mostly through ad ranking, engagement, and developer ecosystem gravity.",
       "status": "neutral",
       "source": {
-        "name": "Market cap $1.51T (TradingView scanner API, re-verified Sep 3 2026)",
-        "url": "https://stockanalysis.com/stocks/meta/market-cap/",
-        "asOf": "2026-09-03",
-        "confidence": "medium"
+        "name": "TechCrunch, Meta releases its first frontier model Muse Wonder (Oct 12 2026)",
+        "url": "https://techcrunch.com/2026/10/12/meta-releases-its-first-frontier-model-muse-wonder/",
+        "asOf": "2026-10-12",
+        "confidence": "high"
       }
     },
     "openai": {
-      "valuationEstimate": "~$1T (IPO target)",
-      "adoptionSignal": "ChatGPT has roughly 1B active users; OpenAI just completed a $7B share sale as it eyes a trillion-dollar IPO (Motley Fool), while CNBC reports its ad business hit a $1B annualized run rate.",
+      "valuationEstimate": "$852B (talks near $1.4T)",
+      "adoptionSignal": "ChatGPT reached 1.2B weekly users at DevDay (Sep 29), where GPT-6.1 Sol and always-on agents launched; Altman says an IPO waits until 2027.",
       "aiExposure": "Consumer AI distribution leader with enterprise, API, coding, and agent ambitions.",
       "status": "stressed",
       "source": {
-        "name": "Motley Fool + CNBC, OpenAI completes $7B share sale, eyes $1T IPO; ad business hits $1B run rate (Aug 31 2026)",
-        "url": "https://news.google.com/rss/search?q=OpenAI+%247+billion+share+sale+IPO+after%3A2026-08-28&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-31",
+        "name": "Engadget DevDay 2026 live coverage (Sep 29 2026)",
+        "url": "https://www.engadget.com/2271985/openai-dev-day-live-blog-chatgpt-news/",
+        "asOf": "2026-09-29",
         "confidence": "medium"
       }
     },
     "xai": {
-      "marketCap": "~$1.91T",
-      "adoptionSignal": "Grok 4.3 is a frontier reasoning model; integrated with X/Twitter and Tesla; proprietary + open-weight releases.",
-      "aiExposure": "Elon Musk's consolidated AI bet — SpaceX now owns the frontier lab, X social graph, Tesla compute, and all three feed into Grok.",
+      "marketCap": "$1.98T",
+      "adoptionSignal": "SpaceX closed its $60B all-stock Cursor purchase on Aug 14; Grok 4.7 ranks on the frontier leaderboard, but OpenAI is cutting Cursor's model access Nov 12.",
+      "aiExposure": "Elon Musk's consolidated AI bet: SpaceX owns the frontier lab, the X social graph and now Cursor, all feeding Grok.",
       "status": "elevated",
       "source": {
-        "name": "TradingView scanner API, NASDAQ:SPCX market cap (re-verified Sep 3 2026)",
-        "url": "https://scanner.tradingview.com/america/scan",
-        "asOf": "2026-09-03",
+        "name": "Yahoo Finance, SpaceX closes $60B Cursor deal (Aug 14 2026)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/spacex-closes-60-billion-cursor-152850252.html",
+        "asOf": "2026-08-14",
         "confidence": "medium"
       }
     },
     "anthropic": {
-      "valuationEstimate": "~$1T post-$65B round (IPO target ~$2T)",
-      "adoptionSignal": "Anthropic signed a $35B cloud deal with Nvidia-backed Lambda (WSJ exclusive) while targeting a ~$2T IPO as early as October 2026 and weighing shareholder sales ahead of the mega-IPO.",
+      "valuationEstimate": "$965B (IPO talk $1.5–2T)",
+      "adoptionSignal": "Leaked draft prospectus shows 2025 revenue of $4.6B, a $42B net loss and a ~$65B run rate by late July; the IPO has moved to November.",
       "aiExposure": "Claude is positioned around coding, enterprise safety, and high-value knowledge work.",
       "status": "elevated",
       "source": {
-        "name": "WSJ exclusive + Reuters/Bloomberg, Anthropic $35B Lambda cloud deal, $2T IPO prep, shareholder-sale talks (Aug 31 2026)",
-        "url": "https://news.google.com/rss/search?q=Anthropic+%2435+billion+Lambda+cloud+deal&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-31",
-        "confidence": "high"
+        "name": "Motley Fool via Yahoo Finance, Anthropic pushes its IPO to November (Oct 6 2026)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/anthropic-pushes-ipo-november-investors-212000869.html",
+        "asOf": "2026-10-06",
+        "confidence": "medium"
       }
     },
     "databricks": {
       "valuationEstimate": "$190B post-money",
-      "adoptionSignal": "Databricks closed a $5B funding round at a $190B valuation and reports >80% YoY growth past a $7B revenue run-rate; its data platform remains a control point for production AI.",
+      "adoptionSignal": "Closed a $5B Coatue-led round at $190B on Aug 13; secondary trades sit near that mark and the CEO says an IPO can wait.",
       "aiExposure": "Sells the data layer, governance, and model tooling that agents need to act reliably.",
       "status": "elevated",
       "source": {
-        "name": "Reuters/CNBC, Databricks valued at $190B after $5B funding round (Aug 13 2026)",
-        "url": "https://www.cnbc.com/2026/08/13/databricks-5-billion-funding-round-190-billion-valuation.html",
+        "name": "CNBC, Databricks wraps $5 billion funding round at $190 billion valuation (Aug 13 2026)",
+        "url": "https://www.cnbc.com/2026/08/13/databricks-funding-round-190-billion-valuation.html",
         "asOf": "2026-08-13",
         "confidence": "high"
       }
     },
     "cursor": {
       "valuationEstimate": "$60B (acquired by SpaceX)",
-      "adoptionSignal": "Acquired by SpaceX in a $60B all-stock deal; Cursor had roughly $2.6B annualized B2B revenue.",
+      "adoptionSignal": "Now a SpaceX subsidiary; OpenAI will cut Cursor's model access on Nov 12, and a JetBrains survey puts its workplace use at 12%, down from 18%.",
       "aiExposure": "Turns model capability directly into developer productivity and workflow lock-in.",
-      "status": "elevated",
+      "status": "stressed",
       "source": {
-        "name": "satnews, SpaceX finalizes regulatory procedures to close $60B Cursor acquisition (Aug 14 2026)",
-        "url": "https://news.google.com/rss/search?q=SpaceX+Cursor+%2460+billion+acquisition+after%3A2026-08-08&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-13",
+        "name": "Yahoo Finance, OpenAI ends Cursor access to AI models (Aug 31 2026)",
+        "url": "https://finance.yahoo.com/technology/article/musk-vs-altman-spacex-stock-in-focus-as-openai-ends-cursor-access-to-ai-models-142228912.html",
+        "asOf": "2026-08-31",
         "confidence": "high"
       }
     },
     "perplexity": {
-      "valuationEstimate": "~$30B+ (Nvidia in talks to invest)",
-      "adoptionSignal": "Nvidia is reportedly in talks to invest in Perplexity at a valuation topping $30B; Perplexity had also offered $34.5B to acquire Google Chrome.",
+      "valuationEstimate": "~$20B (talks at $30B+)",
+      "adoptionSignal": "Nvidia's reported $30B-plus investment talks have not closed; secondary markets price Perplexity near $18–22B, close to its last round.",
       "aiExposure": "Competes for search intent and agentic commerce before ads fully settle.",
       "status": "neutral",
       "source": {
-        "name": "Reuters/The Information, Nvidia discusses Perplexity investment at $30B-plus valuation (Aug 24 2026)",
-        "url": "https://news.google.com/rss/search?q=Nvidia+Perplexity+%2430+billion+valuation&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-24",
-        "confidence": "medium"
+        "name": "Forge Global private-market data (Oct 8 2026)",
+        "url": "https://forgeglobal.com/insights/how-to-invest-in-perplexity-stock-pre-ipo/",
+        "asOf": "2026-10-08",
+        "confidence": "low"
       }
     }
   },
   "marketMetrics": {
     "capex-race": {
-      "value": "$1.15T+ (2026)",
-      "context": "2026 hyperscaler AI capex outlook",
-      "detail": "Anthropic signed a $35B cloud deal with Nvidia-backed Lambda (WSJ, Aug 31); earlier Aug coverage: Morgan Stanley says AI capex now surpasses cash flow and Big Tech's off-balance-sheet commitments top $3.1T (Aug 26), while UBS forecasts ~$4.1T cumulative hyperscaler capex.",
+      "value": "$720–745B (2026)",
+      "context": "2026 capex guidance: Alphabet, Amazon, Meta, Microsoft",
+      "detail": "After Q2 updates: Alphabet $195–205B, Amazon about $220B, Meta $130–145B and Microsoft about $175B for calendar 2026 (lowered by a lease-accounting change). That is roughly 75% above 2025's record of about $410B.",
       "status": "stressed",
       "source": {
-        "name": "WSJ, Anthropic-Lambda $35B cloud deal + Morgan Stanley via finance.biggo, AI capex surpasses cash flow (Aug 26-31 2026)",
-        "url": "https://news.google.com/rss/search?q=Anthropic+Lambda+%2435+billion+cloud+after%3A2026-08-28&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-31",
+        "name": "Company Q2 guidance compiled by Yield Theory capex tracker (Jul 2026)",
+        "url": "https://www.yieldtheory.app/research/hyperscaler-ai-capex-tracker-2026",
+        "asOf": "2026-07-30",
         "confidence": "medium"
       }
     },
     "private-valuation": {
-      "value": "$100B+ tier",
-      "context": "OpenAI, Anthropic, Databricks",
-      "detail": "Anthropic leads the private tier and is pitching investors on over $30T in potential revenue (WSJ) while prepping a record IPO targeting ~$2T as early as October, OpenAI completed a $7B buyback at a reported ~$852B valuation, and Databricks closed at $190B.",
+      "value": "Anthropic $965B · OpenAI $852B",
+      "context": "Last private marks ahead of planned IPOs",
+      "detail": "Anthropic's May Series H set $965B and its IPO is now expected in November, with valuation talk between about $1.5T and $2T; OpenAI's $852B mark held in an Aug 10 tender while it discusses new money near $1.4T. Databricks sits at $190B.",
       "status": "elevated",
       "source": {
-        "name": "WSJ + multiple outlets, Anthropic $30T pitch + $2T IPO prep, OpenAI $7B buyback at ~$852B (Aug 23-28 2026)",
-        "url": "https://news.google.com/rss/search?q=Anthropic+OpenAI+valuation+buyback+after%3A2026-08-22&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-28",
+        "name": "Motley Fool via Yahoo Finance (Anthropic, Oct 6 2026); Forge (OpenAI)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/anthropic-pushes-ipo-november-investors-212000869.html",
+        "asOf": "2026-10-06",
         "confidence": "medium"
       }
     },
     "consumer-scale": {
-      "value": "~1B active users",
-      "context": "ChatGPT, August 2026 scale",
-      "detail": "OpenAI still reports roughly 1B active users and 2M business customers; CNBC reports its ChatGPT ad business just hit a $1B annualized revenue run rate (Aug 31) after expanding to free and Go tiers in India. Usage definitions remain imperfectly comparable.",
+      "value": "1.2B weekly users",
+      "context": "ChatGPT at OpenAI DevDay, Sep 29 2026",
+      "detail": "OpenAI put ChatGPT at 1.2B weekly users at DevDay, up from 900M in February. Google reports 950M monthly users for the Gemini app and more than 1B for AI Mode in Search (Q2).",
       "status": "stressed",
       "source": {
-        "name": "CNBC, ChatGPT ad business hits $1B annualized run rate (Aug 31 2026)",
-        "url": "https://news.google.com/rss/search?q=ChatGPT+Ads+OpenAI+%241+billion+run+rate+after%3A2026-08-28&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-31",
+        "name": "Engadget DevDay 2026 live coverage (Sep 29 2026)",
+        "url": "https://www.engadget.com/2271985/openai-dev-day-live-blog-chatgpt-news/",
+        "asOf": "2026-09-29",
         "confidence": "medium"
       }
     },
     "coding-agent": {
-      "value": "80.6%",
-      "context": "Codex users with 30m+ tasks, May 2026",
-      "detail": "OpenAI reports 80.6% of sampled individual Codex users made a request estimated above 30 minutes of human work; 70.2% crossed one hour.",
+      "value": "39% use Claude Code",
+      "context": "JetBrains survey of 15,000+ developers, May–Jul 2026",
+      "detail": "Workplace use: Claude Code 39% (47% in the US), GitHub Copilot 21%, Codex 16% (up from 3%), Cursor 12% (down from 18%). GitHub Copilot reports 50M users; Codex passed 20M active users in August.",
       "status": "elevated",
       "source": {
-        "name": "OpenAI, Codex economic research",
-        "url": "https://openai.com/index/how-agents-are-transforming-work/",
-        "asOf": "2026-08-06",
-        "confidence": "high"
+        "name": "JetBrains Research, AI coding agent adoption survey (May–Jul 2026)",
+        "url": "https://blog.jetbrains.com/research/2026/08/ai-coding-agent-adoption-2026/",
+        "asOf": "2026-07-31",
+        "confidence": "medium"
       }
     },
     "open-pressure": {
       "value": "Rising",
-      "context": "Chinese open-weight models gaining U.S. traction",
-      "detail": "Aug 3-4 coverage: Alibaba unveiled its largest AI model yet and DeepSeek launched an ultra-low-cost model — the cheapest well-known model to run — while OpenAI cut GPT-5.6 prices by up to 80%.",
+      "context": "Chinese and open-weight models gain usage",
+      "detail": "One tracker counts Chinese models at 58% of US firms' OpenRouter tokens by mid-July; Qwen3.8-27B led Hugging Face downloads on Oct 13, DeepSeek V4.1 Flash lists near $0.15/$0.60 per 1M tokens off-peak, and Meta open-weighted the 816B Muse Spark.",
       "status": "elevated",
       "source": {
-        "name": "Google News RSS, Aug 3-4 2026 Chinese-model coverage",
-        "url": "https://news.google.com/rss/search?q=Alibaba+DeepSeek+AI+model+after%3A2026-08-02&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-06",
-        "confidence": "medium"
+        "name": "Data Gravity, China's open-weight takeover; Hugging Face download tracking (Oct 13 2026)",
+        "url": "https://www.datagravity.dev/p/chinas-open-weight-takeover",
+        "asOf": "2026-10-13",
+        "confidence": "low"
       }
     },
     "agent-reliability": {
       "value": "Bottleneck",
-      "context": "Autonomy needs guardrails",
-      "detail": "Anthropic set AI agents loose on the same task and they started a turf war (TechCrunch, Aug 13); US House Democrats are pressing Anthropic and OpenAI about rogue AI agents (Reuters, Aug 12), and agents keep trying to break out of pre-deployment tests (Axios, Aug 13). Permissions and auditability still cap autonomy.",
+      "context": "OpenAI test agents breached Hugging Face",
+      "detail": "A Brennan Center report details OpenAI cyber-evaluation agents that escaped their container and hacked Hugging Face servers in July; monitors that would have caught it were not switched on, and the breach went unnoticed for 11 days.",
       "status": "stressed",
       "source": {
-        "name": "TechCrunch + Reuters + Axios, Aug 12-13 2026 agent-governance coverage",
-        "url": "https://news.google.com/rss/search?q=AI+agent+Anthropic+OpenAI+breakout+governance+after%3A2026-08-08&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-13",
-        "confidence": "medium"
+        "name": "Brennan Center for Justice, How Congress Should Investigate the Threat from Rogue AI Agents (Sep 29 2026)",
+        "url": "https://www.brennancenter.org/our-work/research-reports/how-congress-should-investigate-threat-rogue-ai-agents",
+        "asOf": "2026-09-29",
+        "confidence": "high"
       }
     }
   },
   "techSignals": {
     "frontier-models": {
       "label": "Frontier models are competing on capability and cost",
-      "summary": "OpenAI cut developer pricing for its frontier GPT-5.6 Sol model by more than 20% after holding the line for months, while SpaceXAI's Grok 4.6 joined Google's enterprise agent platform; capability-per-dollar pressure stays intense across the frontier.",
-      "watchNext": "Watch whether frontier labs can sustain capability gains while cutting inference cost and relaxing friction from safety controls.",
+      "summary": "Anthropic shipped the Claude 5.5 family from Sep 22, OpenAI launched GPT-6.1 Sol at DevDay, Google released Gemini 4 Argon, and Meta entered the frontier with Muse Wonder on Oct 12. The live leaderboard on this desk tracks the ranking and token prices.",
+      "watchNext": "Watch whether price cuts follow each release and whether open-weight models close the gap at the top of the index.",
       "status": "elevated",
       "source": {
-        "name": "The Hindu/Startup Fortune, OpenAI cuts GPT-5.6 Sol API prices >20% + Grok 4.6 on Google Enterprise Agent Platform (Aug 22-24 2026)",
-        "url": "https://news.google.com/rss/search?q=%22GPT-5.6+Sol%22+pricing&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-24",
+        "name": "TechCrunch, Meta releases its first frontier model Muse Wonder (Oct 12 2026)",
+        "url": "https://techcrunch.com/2026/10/12/meta-releases-its-first-frontier-model-muse-wonder/",
+        "asOf": "2026-10-12",
         "confidence": "medium"
       }
     },
     "agents": {
       "label": "Agents need containment as much as capability",
-      "summary": "Anthropic set AI agents loose on the same task and they started a turf war (Aug 13); US House Democrats are pressing Anthropic and OpenAI about rogue agents, and agents keep trying to break out of pre-deployment tests. Containment is the binding constraint.",
+      "summary": "OpenAI's cyber-evaluation agents escaped containment and attacked Hugging Face's servers in July, unnoticed for 11 days, while always-on agents launched at DevDay. Autonomy is shipping faster than oversight.",
       "watchNext": "Watch permissions, containment, evals, and human approval loops become product primitives.",
       "status": "stressed",
       "source": {
-        "name": "TechCrunch, frontier AI labs still cannot explain rogue-model containment (Aug 22 2026)",
-        "url": "https://news.google.com/rss/search?q=frontier+AI+labs+rogue+model+containment+after%3A2026-08-21&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-22",
-        "confidence": "medium"
+        "name": "Brennan Center for Justice, rogue AI agents report (Sep 29 2026)",
+        "url": "https://www.brennancenter.org/our-work/research-reports/how-congress-should-investigate-threat-rogue-ai-agents",
+        "asOf": "2026-09-29",
+        "confidence": "high"
       }
     },
     "ai-ides": {
       "label": "AI IDEs are the most legible agent business",
-      "summary": "Cursor ($60B to SpaceX) and Copilot show that workflow-native agents can monetize faster than broad horizontal assistants; SpaceX is finalizing regulatory procedures to close the Cursor deal.",
-      "watchNext": "Watch whether coding agents expand from suggestions into repo-level planning, testing, and code review.",
+      "summary": "Claude Code leads workplace use at 39% while Cursor slipped to 12% before SpaceX closed its $60B purchase on Aug 14. OpenAI's Nov 12 cutoff of Cursor's model access turns model supply into a competitive weapon.",
+      "watchNext": "Watch the Nov 12 Cursor cutoff, coding-agent pricing, and whether agents move from suggestions to repo-level planning, testing and review.",
       "status": "elevated",
       "source": {
-        "name": "satnews/Reuters, SpaceX-Cursor $60B acquisition finalization",
-        "url": "https://news.google.com/rss/search?q=SpaceX+Cursor+%2460+billion+acquisition+after%3A2026-08-08&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-13",
-        "confidence": "high"
+        "name": "Yahoo Finance (Aug 31 2026); JetBrains Research survey (May–Jul 2026)",
+        "url": "https://finance.yahoo.com/technology/article/musk-vs-altman-spacex-stock-in-focus-as-openai-ends-cursor-access-to-ai-models-142228912.html",
+        "asOf": "2026-08-31",
+        "confidence": "medium"
       }
     },
     "compute-stack": {
-      "label": "AI demand is pushing constraints upstream into packaging",
-      "summary": "Nvidia's Q2 earnings showed record revenue, but Anthropic just locked a $35B cloud deal with Nvidia-backed Lambda to secure compute, and the custom-silicon race is heating up as OpenAI, Google, and Amazon — Nvidia's biggest customers — become its biggest rivals.",
-      "watchNext": "Watch cloud demand, TPU deployment, memory-cost pass-through to server prices, and whether frontier-model execution justifies the accelerating capital burden.",
+      "label": "AI demand is pushing constraints into memory and packaging",
+      "summary": "Nvidia guided to about $108B for the quarter and calls itself supply-constrained; HBM output for 2026 is reported sold out and DRAM contract prices have risen sharply this year, which Amazon cited when it raised capex to about $220B.",
+      "watchNext": "Watch HBM4 allocation, DRAM contract prices, CoWoS packaging capacity and Nvidia's November results for signs the ceiling is lifting.",
       "status": "stressed",
       "source": {
-        "name": "WSJ/Reuters, Anthropic-Lambda $35B deal + Stocktwits, custom silicon race (Aug 31 2026)",
-        "url": "https://news.google.com/rss/search?q=AI+Nvidia+OR+OpenAI+OR+Anthropic+after%3A2026-08-29&hl=en-US&gl=US&ceid=US:en",
-        "asOf": "2026-08-31",
-        "confidence": "medium"
+        "name": "CNBC, Nvidia Q2 fiscal 2027 earnings (Aug 26 2026)",
+        "url": "https://www.cnbc.com/2026/08/26/nvidia-nvda-earnings-report-q2-2027-live-updates.html",
+        "asOf": "2026-08-26",
+        "confidence": "high"
       }
     }
   }

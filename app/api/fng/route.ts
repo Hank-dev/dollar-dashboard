@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchFng } from "@/lib/btc/data/alternativeme";
 import type { FngResponse } from "@/lib/btc/types";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("fng", 3600, async () => {
   try {
     const history = await fetchFng(365);
     if (history.length === 0) throw new Error("no F&G data");
@@ -21,4 +22,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});

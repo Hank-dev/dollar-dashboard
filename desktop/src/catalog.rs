@@ -5,6 +5,12 @@ pub const AI_TICKERS: &[&str] = &["NVDA", "GOOGL", "MSFT", "AMZN", "AVGO", "META
 pub const NUCLEAR_TICKERS: &[&str] = &["CEG", "VST", "CCJ", "BWXT", "OKLO", "UEC", "SMR", "LEU"];
 pub const URANIUM_ETFS: &[&str] = &["URA", "URNM", "NLR"];
 
+/// SpaceX IPO offer price, and its first Nasdaq session (Jun 12 2026, UTC midnight).
+pub const SPACEX_IPO_PRICE: f64 = 135.0;
+pub const SPACEX_FIRST_TRADE_UNIX: i64 = 1_781_222_400;
+/// End of the standard 180-day lockup; trackers say Dec 8 or Dec 9.
+pub const SPACEX_LOCKUP_END: &str = "2026-12-08";
+
 const AI_ROSTER: &[(&str, &str, &str, Option<&str>, &str)] = &[
     ("nvidia", "public", "NVIDIA", Some("NVDA"), "AI compute"),
     (
@@ -66,10 +72,10 @@ const AI_ROSTER: &[(&str, &str, &str, Option<&str>, &str)] = &[
     ),
     (
         "cursor",
-        "private",
+        "acquired",
         "Cursor / Anysphere",
         None,
-        "Coding agent",
+        "Coding agent, owned by SpaceX",
     ),
     (
         "perplexity",
@@ -137,11 +143,16 @@ pub struct Catalog {
     pub nuclear_players: Vec<PlayerCard>,
     pub nuclear_metrics: Vec<NoteCard>,
     pub nuclear_signals: Vec<NoteCard>,
+    pub spacex_verdict: String,
+    pub spacex_as_of: String,
+    pub spacex_metrics: Vec<NoteCard>,
+    pub spacex_signals: Vec<NoteCard>,
 }
 
 pub fn load() -> Catalog {
     let ai = parse_ai(include_str!("../assets/ai_snapshot.json"));
-    let nuclear = parse_nuclear(include_str!("../assets/nuclear.json"));
+    let nuclear = parse_research(include_str!("../assets/nuclear.json"), "nuclear");
+    let spacex = parse_research(include_str!("../assets/spacex.json"), "SpaceX");
     Catalog {
         ai_verdict: ai.0,
         ai_as_of: ai.1,
@@ -153,6 +164,10 @@ pub fn load() -> Catalog {
         nuclear_players: nuclear.2,
         nuclear_metrics: nuclear.3,
         nuclear_signals: nuclear.4,
+        spacex_verdict: spacex.0,
+        spacex_as_of: spacex.1,
+        spacex_metrics: spacex.3,
+        spacex_signals: spacex.4,
     }
 }
 
@@ -236,8 +251,10 @@ fn parse_ai(
     )
 }
 
-fn parse_nuclear(
+/// A dated research snapshot in the nuclear layout: verdict, players, facts, signals.
+fn parse_research(
     text: &str,
+    what: &str,
 ) -> (
     String,
     String,
@@ -246,7 +263,7 @@ fn parse_nuclear(
     Vec<NoteCard>,
 ) {
     let file: NuclearFile = serde_json::from_str(text).unwrap_or_else(|err| {
-        panic!("embedded nuclear snapshot is not readable: {err}");
+        panic!("embedded {what} snapshot is not readable: {err}");
     });
     let players = file
         .players
@@ -420,6 +437,10 @@ mod tests {
         assert_eq!(catalog.nuclear_players.len(), 12);
         assert_eq!(catalog.nuclear_metrics.len(), 6);
         assert_eq!(catalog.nuclear_signals.len(), 6);
-        assert!(catalog.nuclear_verdict.contains("400 GWe"));
+        assert!(catalog.nuclear_verdict.contains("HALEU"));
+        assert_eq!(catalog.spacex_metrics.len(), 5);
+        assert_eq!(catalog.spacex_signals.len(), 3);
+        assert!(catalog.spacex_verdict.contains("lockup"));
+        assert!(chrono::NaiveDate::parse_from_str(SPACEX_LOCKUP_END, "%Y-%m-%d").is_ok());
     }
 }

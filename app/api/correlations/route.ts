@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
 import { fetchFredSeries } from "@/lib/btc/data/fred";
 import { fetchYahooDaily } from "@/lib/btc/data/yahoo";
@@ -15,7 +16,7 @@ import type {
   CorrelationsResponse,
 } from "@/lib/btc/types";
 
-export const revalidate = 86_400; // daily
+export const dynamic = "force-dynamic";
 
 type Point = { t: number; v: number };
 
@@ -58,7 +59,7 @@ function buildSpecs(startIso: string): AssetSpec[] {
     },
     {
       key: "dxy",
-      label: "USD Index",
+      label: "Broad USD",
       source: "FRED · DTWEXBGS",
       fetch: () => fetchFredSeries("DTWEXBGS", startIso),
     },
@@ -118,7 +119,7 @@ function summariseAsset(
   };
 }
 
-export async function GET() {
+export const GET = cachedRoute("correlations", 86400, async () => {
   const startIso = new Date(Date.now() - 365 * 86_400_000)
     .toISOString()
     .slice(0, 10);
@@ -162,4 +163,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+}, { degraded: (b) => (b as { assets: { error?: string }[] }).assets.some((a) => a.error) });

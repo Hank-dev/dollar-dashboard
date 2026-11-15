@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchMstrAtmFilings } from "@/lib/btc/data/edgar";
 import { fetchYahooDaily } from "@/lib/btc/data/yahoo";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
@@ -9,7 +10,7 @@ import type {
   StrcWeekPoint,
 } from "@/lib/btc/types";
 
-export const revalidate = 86400; // 24h — EDGAR filings are weekly
+export const dynamic = "force-dynamic";
 
 function avgBtcPriceInWindow(
   prices: { t: number; v: number }[],
@@ -67,7 +68,7 @@ function ytdSum(filings: StrategyFiling[]): number {
   return sum;
 }
 
-export async function GET() {
+export const GET = cachedRoute("strategy", 86400, async () => {
   try {
     const [filings, strcQuote, btcPrices] = await Promise.all([
       fetchMstrAtmFilings(16).catch(() => [] as StrategyFiling[]),
@@ -121,4 +122,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+}, { degraded: (b) => { const r = b as { latestFiledAt: unknown; strcPrice: unknown }; return r.latestFiledAt == null || r.strcPrice == null; } });

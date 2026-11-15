@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
 import { fetchBtcDailyVolume } from "@/lib/btc/data/binanceKlines";
 import {
@@ -9,9 +10,9 @@ import {
 import { LAST_HALVING_UNIX, SECONDS_PER_DAY, sma } from "@/lib/btc/calc/util";
 import type { DailyPoint, PriceHistoryResponse } from "@/lib/btc/types";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("price-history", 3600, async () => {
   try {
     const [raw, rawVolume] = await Promise.all([
       fetchBtcDailyHistory(),
@@ -78,4 +79,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchFredSeries } from "@/lib/btc/data/fred";
 import { fetchYahooDaily } from "@/lib/btc/data/yahoo";
+import { fetchDxyDaily } from "@/lib/btc/data/cnbc";
 import { SECONDS_PER_DAY } from "@/lib/btc/calc/util";
 import type { MacroIndicator, MacroKey, MacroResponse } from "@/lib/btc/types";
 
-export const revalidate = 21600;
+export const dynamic = "force-dynamic";
 
 type Series = { t: number; v: number }[];
 
@@ -61,25 +63,27 @@ async function safe<T>(
   }
 }
 
-export async function GET() {
+export const GET = cachedRoute("macro", 21600, async () => {
   const start = new Date(Date.now() - 90 * 24 * 3600 * 1000)
     .toISOString()
     .slice(0, 10);
+
+  const startSec = Math.floor(new Date(start).getTime() / 1000);
 
   const [dxy, dfii10, hyspread, vix, move] = await Promise.all([
     safe(
       async () =>
         summarise(
           "dxy",
-          "USD INDEX",
-          "FRED · DTWEXBGS",
+          "DXY",
+          "CNBC · ICE DXY",
           "",
-          await fetchFredSeries("DTWEXBGS", start),
+          (await fetchDxyDaily()).filter((p) => p.t >= startSec),
         ),
       (err) => ({
         key: "dxy",
-        label: "USD INDEX",
-        source: "FRED · DTWEXBGS",
+        label: "DXY",
+        source: "CNBC · ICE DXY",
         unit: "",
         current: null,
         prev30d: null,
@@ -179,4 +183,4 @@ export async function GET() {
     generatedAt: Math.floor(Date.now() / 1000),
   };
   return NextResponse.json(body);
-}
+}, { degraded: (b) => (b as { indicators: { error?: string }[] }).indicators.some((i) => i.error) });

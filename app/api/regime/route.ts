@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
 import {
   fetchMvrvZ,
@@ -10,12 +11,12 @@ import { fitPowerLaw, powerLawZ } from "@/lib/btc/calc/powerLaw";
 import { sma } from "@/lib/btc/calc/util";
 import type { RegimeResponse } from "@/lib/btc/types";
 
-export const revalidate = 1800;
+export const dynamic = "force-dynamic";
 
 const tail = <T extends { v: number }>(arr: T[]): number | null =>
   arr.length > 0 ? arr[arr.length - 1].v : null;
 
-export async function GET() {
+export const GET = cachedRoute("regime", 1800, async () => {
   const errors: string[] = [];
   let prices: { t: number; v: number }[] = [];
   let mvrvZ: number | null = null;
@@ -78,4 +79,4 @@ export async function GET() {
     asOf: Math.floor(Date.now() / 1000),
   };
   return NextResponse.json(body);
-}
+}, { degraded: (b) => { const r = b as { mvrvZ: unknown; nupl: unknown; realizedPrice: unknown }; return r.mvrvZ == null || r.nupl == null || r.realizedPrice == null; } });

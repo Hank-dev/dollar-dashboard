@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchFredSeries } from "@/lib/btc/data/fred";
 import { computeNetLiquidity } from "@/lib/btc/calc/netLiquidity";
 import { SECONDS_PER_DAY } from "@/lib/btc/calc/util";
 import type { NetLiquidityResponse } from "@/lib/btc/types";
 
-export const revalidate = 21600;
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("net-liquidity", 21600, async () => {
   try {
     const [walcl, tga, rrp] = await Promise.all([
       fetchFredSeries("WALCL", "2015-01-01"),
@@ -40,4 +41,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});

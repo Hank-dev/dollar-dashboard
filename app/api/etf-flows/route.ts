@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchFarsideFlows, summariseFlows } from "@/lib/btc/data/farside";
 import type { EtfFlowsResponse } from "@/lib/btc/types";
 
-export const revalidate = 21600;
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("etf-flows", 21600, async () => {
   try {
     const days = await fetchFarsideFlows();
     if (days.length === 0) throw new Error("no ETF flow rows");
@@ -25,4 +26,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});

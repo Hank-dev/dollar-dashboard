@@ -135,8 +135,11 @@ export type RegimeScoreHistoryPoint = {
 };
 export type RegimeScoreResponse = {
   asOf: number;
-  currentScore: number; // -5..+5
-  targetAllocPct: number; // 0..100
+  /** -5..+5, or null when any input is missing: a missing input is not a neutral vote. */
+  currentScore: number | null;
+  targetAllocPct: number | null; // 0..100
+  /** Labels of the inputs that could not be read. */
+  missingInputs?: string[];
   inputs: RegimeScoreInputDetail[];
   history: RegimeScoreHistoryPoint[]; // ~2y weekly
   generatedAt: number;

@@ -62,7 +62,12 @@ export default function Dashboard({ data }: { data: DashboardData }) {
           </h1>
         </div>
         <p className="shrink-0 mono text-[11.5px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
-          Close · {displayDate}
+          Latest reading · {displayDate}
+          {data.fallbackCount > 0 && (
+            <span className="block normal-case tracking-normal text-[var(--accent-amber)]">
+              {data.fallbackCount} of {data.metrics.length} readings are fallback values, dated on each card
+            </span>
+          )}
         </p>
       </header>
 
@@ -142,9 +147,9 @@ export default function Dashboard({ data }: { data: DashboardData }) {
       {/* Footer */}
       <footer className="mt-10 border-t border-[var(--border)] pt-5 text-[11.5px] leading-relaxed text-[var(--text-tertiary)]">
         <p>
-          Sources: US Treasury &amp; FRED (yields, Fed funds), ICE (DXY), Reuters / Nikkei
-          (USD/JPY, JGB, BOJ), CBOE (VIX), S&amp;P Global (S&amp;P 500), LBMA (gold), ICE
-          Brent.
+          Sources: FRED (Treasury yields, Fed funds, broad trade-weighted dollar, USD/JPY,
+          VIX, S&amp;P 500, Brent), TradingView (Japan 10Y, BOJ policy rate), Gold API (gold
+          spot), CoinGecko (Bitcoin). Each card shows the date of its reading.
         </p>
         <p className="mt-2">
           This dashboard is informational market context, not financial advice.

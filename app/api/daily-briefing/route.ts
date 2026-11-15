@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { anthropic } from "@/lib/anthropic";
+import { anthropic, describeAnthropicError, messageText, MODELS } from "@/lib/anthropic";
+import { fetchDxyDaily } from "@/lib/btc/data/cnbc";
+import { hasAnthropicKey } from "@/lib/llmGuard";
+import { cached } from "@/lib/routeCache";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
 import { fetchFredSeries } from "@/lib/btc/data/fred";
 import { fetchFng } from "@/lib/btc/data/alternativeme";
@@ -58,13 +61,46 @@ async function fetchFrontierModels(): Promise<FrontierModelPoint[]> {
   return points.sort((a, b) => b.intelligenceIndex - a.intelligenceIndex);
 }
 
+const BRIEFING_TTL_SECONDS = 6 * 3600;
+
+type Briefing = { briefing: string; generatedAt: string; dataPoints: number };
+
+// One model call per six hours however many times the home page loads, and
+// concurrent loads share it.
 export async function GET() {
+  if (!hasAnthropicKey()) {
+    return NextResponse.json(
+      { error: "AI briefing is not configured on this server (ANTHROPIC_API_KEY)." },
+      { status: 503 },
+    );
+  }
+  try {
+    const hit = await cached<Briefing>(
+      "daily-briefing",
+      { ttlSeconds: BRIEFING_TTL_SECONDS },
+      generateBriefing,
+    );
+    return NextResponse.json({ ...hit.value, cache: hit.status });
+  } catch (err) {
+    console.error("daily briefing error:", err);
+    if (err instanceof NoData) {
+      return NextResponse.json({ error: err.message }, { status: 502 });
+    }
+    const { status, message } = describeAnthropicError(err);
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+class NoData extends Error {}
+
+async function generateBriefing(): Promise<Briefing> {
   const context: string[] = [];
+  const since90d = Math.floor(Date.now() / 1000) - 90 * 86400;
 
   const [btcResult, macroResults, fngResult, aiResult] = await Promise.allSettled([
     fetchBtcDailyHistory(),
     Promise.allSettled([
-      fetchFredSeries("DTWEXBGS", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
+      fetchDxyDaily().then((series) => series.filter((p) => p.t >= since90d)),
       fetchFredSeries("VIXCLS", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
       fetchFredSeries("DFII10", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
       fetchFredSeries("BAMLH0A0HYM2", new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)),
@@ -115,7 +151,7 @@ export async function GET() {
       const deltaStr = delta != null ? ` (30d: ${delta > 0 ? "+" : ""}${delta.toFixed(2)}${unit})` : "";
       context.push(`${name}: ${latest.v.toFixed(2)}${unit}${deltaStr}`);
     };
-    summarize("DXY (broad USD)", "", dxyR);
+    summarize("DXY (ICE US Dollar Index)", "", dxyR);
     summarize("VIX", "", vixR);
     summarize("10Y real yield", "%", realYieldR);
     summarize("HY spread", "%", hyR);
@@ -136,14 +172,11 @@ export async function GET() {
   }
 
   if (context.length === 0) {
-    return NextResponse.json({
-      briefing: "Unable to generate briefing — all data sources failed. Check API keys and network connectivity.",
-      generatedAt: new Date().toISOString(),
-    });
+    throw new NoData("No briefing: every data source failed.");
   }
 
   const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: MODELS.briefing,
     max_tokens: 400,
     messages: [
       {
@@ -156,14 +189,7 @@ ${context.join("\n")}`,
     ],
   });
 
-  const briefing = msg.content
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("\n\n");
-
-  return NextResponse.json({
-    briefing,
-    generatedAt: new Date().toISOString(),
-    dataPoints: context.length,
-  });
+  const briefing = messageText(msg, "\n\n");
+  if (!briefing) throw new Error("empty briefing");
+  return { briefing, generatedAt: new Date().toISOString(), dataPoints: context.length };
 }

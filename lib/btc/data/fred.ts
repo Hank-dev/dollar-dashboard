@@ -35,7 +35,7 @@ export async function fetchFredSeries(
       signal: controller.signal,
     });
     if (!res.ok) {
-      throw new Error(`FRED ${seriesId} ${res.status}: ${await res.text()}`);
+      throw new Error(`FRED ${seriesId} responded ${res.status}`);
     }
     const j = (await res.json()) as FredResponse;
     const out: FredObs[] = [];

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchFredSeries } from "@/lib/btc/data/fred";
 import { fetchMvrvZ } from "@/lib/btc/data/bitcoinData";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
@@ -14,7 +15,7 @@ import type {
   RegimeScoreResponse,
 } from "@/lib/btc/types";
 
-export const revalidate = 86_400; // daily — matches Strategy D cadence
+export const dynamic = "force-dynamic";
 
 function toDailyPoints<T extends { t: number; v: number }>(s: T[]): DailyPoint[] {
   return s.map((p) => ({ t: p.t, v: p.v }));
@@ -102,15 +103,15 @@ function resampleDailyToWeekly(daily: DailyPoint[]): { ts: number; close: number
   return out;
 }
 
-export async function GET() {
+export const GET = cachedRoute("regime-score", 86400, async () => {
   try {
     const startIso = new Date(Date.now() - 4 * 365 * 86_400_000)
       .toISOString()
       .slice(0, 10);
 
-    // Fetch in parallel. If any source fails we still return a partial result
-    // with the relevant input marked as "insufficient data" — same pattern as
-    // /api/macro.
+    // Fetch in parallel. If any source fails the inputs that did answer are
+    // still listed, but no composite score or allocation is reported: a missing
+    // input would count as a zero and move the allocation by itself.
     const [fedfunds, m2, dxy, mvrvZ, btcRaw] = await Promise.all([
       fetchFredSeries("FEDFUNDS", startIso).catch(() => [] as DailyPoint[]),
       fetchFredSeries("WM2NS", startIso).catch(() => [] as DailyPoint[]),
@@ -207,12 +208,18 @@ export async function GET() {
       return { t, score: s.total, alloc: targetAllocationFromScore(s.total) };
     });
 
+    const missingInputs = inputs
+      .filter((i) => i.rationale.startsWith("insufficient"))
+      .map((i) => i.label);
+    const complete = missingInputs.length === 0;
+
     const body: RegimeScoreResponse = {
       asOf: now,
-      currentScore: sb.total,
-      targetAllocPct: targetAllocationFromScore(sb.total) * 100,
+      currentScore: complete ? sb.total : null,
+      targetAllocPct: complete ? targetAllocationFromScore(sb.total) * 100 : null,
+      missingInputs,
       inputs,
-      history,
+      history: complete ? history : [],
       generatedAt: now,
     };
     return NextResponse.json(body);
@@ -222,4 +229,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+}, { degraded: (b) => (b as { currentScore: number | null }).currentScore == null });

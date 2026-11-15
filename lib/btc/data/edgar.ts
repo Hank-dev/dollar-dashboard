@@ -8,8 +8,12 @@ import type {
 } from "@/lib/btc/types";
 
 const CIK = "0001050446"; // MicroStrategy / Strategy
-const UA =
-  "btc-terminal/1.0 johanneshankoe@gmail.com (single-user dashboard, contact via email)";
+// SEC asks automated clients to identify themselves with a contact. Set
+// SEC_CONTACT on the server; a contact address does not belong in a public
+// repository.
+const UA = ["market-monitor/0.1", process.env.SEC_CONTACT?.trim()]
+  .filter(Boolean)
+  .join(" ");
 const COMMON_HEADERS = {
   "User-Agent": UA,
   Accept: "application/atom+xml, text/html, */*",

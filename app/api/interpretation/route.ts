@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { anthropic, describeAnthropicError, messageText, MODELS } from "@/lib/anthropic";
+import { hasAnthropicKey } from "@/lib/llmGuard";
+import { cached } from "@/lib/routeCache";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
 import {
   fetchMvrvZ,
@@ -14,7 +16,7 @@ import { fitPowerLaw, powerLawZ } from "@/lib/btc/calc/powerLaw";
 import { LAST_HALVING_UNIX, SECONDS_PER_DAY, sma } from "@/lib/btc/calc/util";
 import type { InterpretationResponse } from "@/lib/btc/types";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 type Summary = {
   spot: number;
@@ -36,9 +38,10 @@ async function buildSummary(): Promise<Summary> {
   const [prices, mvrvZ, nupl, realized, walcl, tga, rrp, fng] =
     await Promise.all([
       fetchBtcDailyHistory(),
-      fetchMvrvZ(),
-      fetchNupl(),
-      fetchRealizedPrice(),
+      // On-chain inputs are optional: the prompt prints "n/a" for a missing one.
+      fetchMvrvZ().catch(() => []),
+      fetchNupl().catch(() => []),
+      fetchRealizedPrice().catch(() => []),
       fetchFredSeries("WALCL", "2015-01-01").catch(() => []),
       fetchFredSeries("WTREGEN", "2015-01-01").catch(() => []),
       fetchFredSeries("RRPONTSYD", "2015-01-01").catch(() => []),
@@ -138,41 +141,31 @@ Write a market interpretation in 3 short paragraphs (≤180 words total):
 Use plain text only. No markdown, no headers, no bullet points, no emoji. Numbers should be embedded inline.`;
 
 export async function GET() {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!hasAnthropicKey()) {
     return NextResponse.json({
       disabled: true,
       reason:
-        "ANTHROPIC_API_KEY not set in .env.local — see .env.local.example",
+        "ANTHROPIC_API_KEY not set in .env.local — see .env.example",
     } satisfies InterpretationResponse);
   }
 
   try {
-    const inputs = await buildSummary();
-    const prompt = buildPrompt(inputs);
-
-    const client = new Anthropic();
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: prompt }],
+    const hit = await cached("interpretation", { ttlSeconds: 86_400 }, async () => {
+      const inputs = await buildSummary();
+      const response = await anthropic.messages.create({
+        model: MODELS.interpretation,
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: buildPrompt(inputs) }],
+      });
+      const text = messageText(response, "");
+      if (!text) throw new Error("empty interpretation");
+      return { text, generatedAt: Math.floor(Date.now() / 1000), inputs };
     });
-
-    const text = response.content
-      .filter((b) => b.type === "text")
-      .map((b) => (b.type === "text" ? b.text : ""))
-      .join("")
-      .trim();
-
-    return NextResponse.json({
-      text,
-      generatedAt: Math.floor(Date.now() / 1000),
-      inputs,
-    } satisfies InterpretationResponse);
+    return NextResponse.json(hit.value satisfies InterpretationResponse);
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 502 },
-    );
+    console.error("interpretation error:", err);
+    const { status, message } = describeAnthropicError(err);
+    return NextResponse.json({ error: message }, { status });
   }
 }

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchAllFunding } from "@/lib/btc/data/funding";
 import type { FundingResponse } from "@/lib/btc/types";
 
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("funding", 600, async () => {
   try {
     const exchanges = await fetchAllFunding();
 
@@ -34,4 +35,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+}, { degraded: (b) => (b as { combinedAvg7d: number | null }).combinedAvg7d == null });

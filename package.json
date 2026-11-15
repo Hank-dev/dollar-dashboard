@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --import tsx --test tests/*.test.ts",
     "refresh:snapshots": "tsx scripts/refresh-snapshots.ts"
   },
   "dependencies": {

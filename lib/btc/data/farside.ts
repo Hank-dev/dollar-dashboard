@@ -48,8 +48,10 @@ export async function fetchFarsideFlows(): Promise<EtfFlowDay[]> {
         "Mozilla/5.0 (compatible; btc-terminal/1.0; +single-user dashboard)",
       Accept: "text/html,application/xhtml+xml",
     },
+    signal: AbortSignal.timeout(10_000),
   });
-  if (!res.ok) throw new Error(`Farside ${res.status}: ${await res.text()}`);
+  // The body of a refusal is a full challenge page; the status says enough.
+  if (!res.ok) throw new Error(`Farside responded ${res.status}`);
   const html = await res.text();
 
   // Target the flows table specifically. The page has several <table>s — the

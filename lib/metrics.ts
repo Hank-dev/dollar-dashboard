@@ -1,4 +1,21 @@
-import type { RawData } from "./fetchers";
+export type Observation = { date: string; value: number };
+
+export type RawData = {
+  ust30: Observation | null;
+  ust10: Observation | null;
+  ust2: Observation | null;
+  fedTargetUpper: Observation | null;
+  fedTargetLower: Observation | null;
+  dxyBroad: Observation | null; // FRED DTWEXBGS: broad trade-weighted USD (~120), not ICE DXY (~100)
+  usdjpy: Observation | null;
+  vix: Observation | null;
+  sp500: Observation | null;
+  gold: Observation | null;
+  brent: Observation | null;
+  bitcoin: Observation | null;
+  jgb10: Observation | null;
+  bojRate: Observation | null;
+};
 
 export type Status = "calm" | "neutral" | "elevated" | "stressed";
 
@@ -9,7 +26,12 @@ export interface Metric {
   value: string;
   unit?: string;
   status: Status;
+  /** Short note plus the reading's date; says so when the value is the built-in fallback. */
   context: string;
+  /** ISO date of the reading. */
+  asOf: string;
+  /** True when no live source answered and the built-in snapshot value is shown. */
+  fallback: boolean;
 }
 
 export interface CurvePoint {
@@ -20,7 +42,12 @@ export interface CurvePoint {
 export interface DashboardData {
   metrics: Metric[];
   yieldCurve: CurvePoint[];
-  snapshotDate: string; // ISO yyyy-mm-dd
+  /** Newest reading date (ISO yyyy-mm-dd). Individual metrics can be older. */
+  snapshotDate: string;
+  /** Oldest reading date on the page. */
+  oldestDate: string;
+  /** How many metrics show the built-in fallback instead of a live reading. */
+  fallbackCount: number;
 }
 
 export const STATUS_COLOR: Record<Status, string> = {
@@ -68,6 +95,13 @@ const vixStatus = (v: number): Status =>
 const goldStatus = (v: number): Status =>
   v >= 4000 ? "elevated" : v >= 2500 ? "neutral" : "calm";
 
+// Same thresholds as the desktop client.
+const jgbStatus = (v: number): Status =>
+  v >= 3.5 ? "stressed" : v >= 2 ? "elevated" : "neutral";
+
+const bojStatus = (v: number): Status =>
+  v >= 1 ? "stressed" : v >= 0.5 ? "elevated" : "neutral";
+
 const brentStatus = (v: number): Status =>
   v >= 95 ? "elevated" : v >= 80 ? "neutral" : v >= 60 ? "neutral" : "calm";
 
@@ -92,13 +126,15 @@ export const FALLBACK: RawData = {
   ust2: { date: "2026-09-02", value: 4.39 }, // U.S. Treasury: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026 (Sep 2 close, 4.39%)
   fedTargetUpper: { date: "2026-09-02", value: 3.75 }, // Federal Reserve: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DFEDTARU (Sep 2, upper bound 3.75%; no FOMC since, unchanged)
   fedTargetLower: { date: "2026-09-02", value: 3.5 }, // Federal Reserve: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DFEDTARL (Sep 2, lower bound 3.50%; unchanged)
-  dxyBroad: { date: "2026-09-03", value: 99.367 }, // TradingView: https://scanner.tradingview.com/america/scan (TVC:DXY, Sep 3 quote, 99.367)
+  dxyBroad: { date: "2026-09-02", value: 118.5296 }, // FRED: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DTWEXBGS (Sep 2, 118.5296). Must be the broad index, the same series as the live reading; ICE DXY is a different scale.
   usdjpy: { date: "2026-09-03", value: 159.088772 }, // exchangerate-api: https://open.er-api.com/v6/latest/USD (Sep 3 mid, 159.088772)
   vix: { date: "2026-09-02", value: 15.2 }, // CBOE: https://cdn.cboe.com/api/global/delayed_quotes/quotes/_VIX.json (Sep 2 close, 15.20)
   sp500: { date: "2026-09-02", value: 7666.6 }, // FRED: https://fred.stlouisfed.org/graph/fredgraph.csv?id=SP500 (Sep 2 close, 7,666.60)
   gold: { date: "2026-09-03", value: 4433.4 }, // Gold API: https://api.gold-api.com/price/XAU (Sep 3 spot, $4,433.40/oz)
   brent: { date: "2026-09-03", value: 94.26 }, // TradingView: https://scanner.tradingview.com/futures/scan (NYMEX:BZ1! front month, Sep 3 quote, $94.26/bbl)
-  bitcoin: 77751.0, // CoinGecko: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd (Sep 3 spot, $77,751)
+  bitcoin: { date: "2026-09-03", value: 77751.0 }, // CoinGecko: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd (Sep 3 spot, $77,751)
+  jgb10: { date: "2026-09-03", value: 2.954 }, // TradingView: https://scanner.tradingview.com/global/scan (TVC:JP10Y, Sep 3, 2.954%)
+  bojRate: { date: "2026-09-03", value: 1.0 }, // BOJ: https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf (held at 1.0% on Jul 31 2026)
 };
 
 // --- Builder ---------------------------------------------------------------
@@ -109,58 +145,40 @@ const FMT_DATE = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-function asOf(date: string | undefined): string {
-  if (!date) return "—";
-  const d = new Date(date + "T00:00:00Z");
-  return `as of ${FMT_DATE.format(d)}`;
+function shortDate(date: string): string {
+  return FMT_DATE.format(new Date(date + "T00:00:00Z"));
 }
 
-function latestDate(raw: RawData): string {
-  const dates = [
-    raw.ust30?.date,
-    raw.ust10?.date,
-    raw.ust2?.date,
-    raw.vix?.date,
-    raw.sp500?.date,
-    raw.usdjpy?.date,
-    raw.gold?.date,
-    raw.brent?.date,
-    raw.dxyBroad?.date,
-  ].filter((d): d is string => Boolean(d));
-  if (dates.length === 0) return FALLBACK.ust30!.date;
-  return dates.sort().at(-1)!;
-}
+type Field = keyof RawData;
 
 export function buildDashboard(raw: RawData): DashboardData {
-  // Merge any missing fields with FALLBACK so a single failed series doesn't
-  // wipe out the whole dashboard.
-  const r: RawData = {
-    ust30: raw.ust30 ?? FALLBACK.ust30,
-    ust10: raw.ust10 ?? FALLBACK.ust10,
-    ust2: raw.ust2 ?? FALLBACK.ust2,
-    fedTargetUpper: raw.fedTargetUpper ?? FALLBACK.fedTargetUpper,
-    fedTargetLower: raw.fedTargetLower ?? FALLBACK.fedTargetLower,
-    dxyBroad: raw.dxyBroad ?? FALLBACK.dxyBroad,
-    usdjpy: raw.usdjpy ?? FALLBACK.usdjpy,
-    vix: raw.vix ?? FALLBACK.vix,
-    sp500: raw.sp500 ?? FALLBACK.sp500,
-    gold: raw.gold ?? FALLBACK.gold,
-    brent: raw.brent ?? FALLBACK.brent,
-    bitcoin: raw.bitcoin ?? FALLBACK.bitcoin,
+  // A missing reading falls back to the built-in snapshot value so one failed
+  // source doesn't blank the page, but the card says so and keeps its date.
+  const used = (field: Field): Observation => raw[field] ?? FALLBACK[field]!;
+  const isFallback = (field: Field): boolean => raw[field] == null;
+
+  /** Optional note, then the reading's date; fallback values are named as such. */
+  const describe = (fields: Field[], note = ""): Pick<Metric, "context" | "asOf" | "fallback"> => {
+    const fallback = fields.some(isFallback);
+    const asOf = fields.map((f) => used(f).date).sort()[0];
+    const dated = fallback ? `fallback snapshot · ${shortDate(asOf)}` : `as of ${shortDate(asOf)}`;
+    return { context: note ? `${note} · ${dated}` : dated, asOf, fallback };
   };
 
-  const ust30v = r.ust30!.value;
-  const ust10v = r.ust10!.value;
-  const ust2v = r.ust2!.value;
-  const fedHi = r.fedTargetUpper!.value;
-  const fedLo = r.fedTargetLower!.value;
-  const dxyV = r.dxyBroad!.value;
-  const jpyV = r.usdjpy!.value;
-  const vixV = r.vix!.value;
-  const spV = r.sp500!.value;
-  const goldV = r.gold!.value;
-  const brentV = r.brent!.value;
-  const btcV = r.bitcoin!;
+  const ust30v = used("ust30").value;
+  const ust10v = used("ust10").value;
+  const ust2v = used("ust2").value;
+  const fedHi = used("fedTargetUpper").value;
+  const fedLo = used("fedTargetLower").value;
+  const dxyV = used("dxyBroad").value;
+  const jpyV = used("usdjpy").value;
+  const vixV = used("vix").value;
+  const spV = used("sp500").value;
+  const goldV = used("gold").value;
+  const brentV = used("brent").value;
+  const btcV = used("bitcoin").value;
+  const jgbV = used("jgb10").value;
+  const bojV = used("bojRate").value;
 
   const curveBps = Math.round((ust10v - ust2v) * 100);
 
@@ -172,7 +190,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "30Y Treasury yield",
       value: pct(ust30v),
       status: yieldStatus30(ust30v),
-      context: asOf(r.ust30?.date),
+      ...describe(["ust30"]),
     },
     {
       id: "ust10",
@@ -180,7 +198,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "10Y Treasury yield",
       value: pct(ust10v),
       status: yieldStatus10(ust10v),
-      context: asOf(r.ust10?.date),
+      ...describe(["ust10"]),
     },
     {
       id: "ust2",
@@ -188,7 +206,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "2Y Treasury yield",
       value: pct(ust2v),
       status: yieldStatus2(ust2v),
-      context: asOf(r.ust2?.date),
+      ...describe(["ust2"]),
     },
     {
       id: "fedfunds",
@@ -196,7 +214,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "Fed funds target",
       value: `${fedLo.toFixed(2)}–${fedHi.toFixed(2)}%`,
       status: "neutral",
-      context: asOf(r.fedTargetUpper?.date),
+      ...describe(["fedTargetUpper", "fedTargetLower"]),
     },
     {
       id: "curve",
@@ -204,7 +222,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "2s/10s curve",
       value: `${curveBps >= 0 ? "+" : ""}${curveBps} bps`,
       status: curveStatusBps(curveBps),
-      context: curveBps >= 50 ? "bear-steepening risk" : "flat / mid range",
+      ...describe(["ust10", "ust2"], curveBps >= 50 ? "bear-steepening risk" : "flat / mid range"),
     },
     // Dollar & the yen carry trade
     {
@@ -213,7 +231,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "USD index (broad)",
       value: num1(dxyV),
       status: "neutral",
-      context: asOf(r.dxyBroad?.date),
+      ...describe(["dxyBroad"], "trade-weighted, not ICE DXY"),
     },
     {
       id: "usdjpy",
@@ -221,23 +239,23 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "USD / JPY",
       value: num1(jpyV),
       status: usdjpyStatus(jpyV),
-      context: jpyV >= 155 ? "near intervention zone (~160)" : asOf(r.usdjpy?.date),
+      ...describe(["usdjpy"], jpyV >= 155 ? "near intervention zone (~160)" : ""),
     },
     {
       id: "jgb10",
       group: "dollar",
       label: "Japan 10Y JGB",
-      value: "~2.95%", // TradingView: https://scanner.tradingview.com/global/scan (TVC:JP10Y, Sep 3 2026, 2.954%)
-      status: "elevated",
-      context: "2.95% (Sep 3) · BOJ at 1.0%", // https://scanner.tradingview.com/global/scan and https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf
+      value: pct(jgbV),
+      status: jgbStatus(jgbV),
+      ...describe(["jgb10"]),
     },
     {
       id: "bojrate",
       group: "dollar",
       label: "BOJ policy rate",
-      value: "1.0%", // BOJ: https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf (held at 1.0% on Jul 31 2026; last hiked Jun 17)
-      status: "stressed",
-      context: "held at 1.0% · Ueda signals Sept hike as bets mount", // Reuters/Japan Times (Sep 3 2026): Ueda hints at September hike; Bessent pressed BOJ; yen near 159
+      value: pct(bojV),
+      status: bojStatus(bojV),
+      ...describe(["bojRate"], bojV >= 1 ? "squeezes the yen carry trade" : ""),
     },
     // Risk appetite & havens
     {
@@ -246,7 +264,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "VIX (volatility)",
       value: num1(vixV),
       status: vixStatus(vixV),
-      context: vixV < 18 ? "calm — watch divergence vs bonds" : asOf(r.vix?.date),
+      ...describe(["vix"], vixV < 18 ? "calm — watch divergence vs bonds" : ""),
     },
     {
       id: "sp500",
@@ -254,7 +272,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "S&P 500",
       value: intCommas(spV),
       status: "neutral",
-      context: asOf(r.sp500?.date),
+      ...describe(["sp500"]),
     },
     {
       id: "gold",
@@ -262,7 +280,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "Gold",
       value: dollars0(goldV),
       status: goldStatus(goldV),
-      context: goldV >= 4000 ? "haven / debasement bid" : asOf(r.gold?.date),
+      ...describe(["gold"], goldV >= 4000 ? "haven / debasement bid" : ""),
     },
     {
       id: "bitcoin",
@@ -270,7 +288,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "Bitcoin",
       value: `$${(btcV / 1000).toFixed(1)}k`,
       status: "neutral",
-      context: "CoinGecko spot · Sep 3", // https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
+      ...describe(["bitcoin"], "CoinGecko spot"),
     },
     {
       id: "brent",
@@ -278,7 +296,7 @@ export function buildDashboard(raw: RawData): DashboardData {
       label: "Brent crude",
       value: `$${brentV.toFixed(1)}`,
       status: brentStatus(brentV),
-      context: asOf(r.brent?.date),
+      ...describe(["brent"]),
     },
   ];
 
@@ -288,5 +306,12 @@ export function buildDashboard(raw: RawData): DashboardData {
     { m: "30Y", y: ust30v },
   ];
 
-  return { metrics, yieldCurve, snapshotDate: latestDate(r) };
+  const dates = metrics.map((m) => m.asOf).sort();
+  return {
+    metrics,
+    yieldCurve,
+    snapshotDate: dates[dates.length - 1],
+    oldestDate: dates[0],
+    fallbackCount: metrics.filter((m) => m.fallback).length,
+  };
 }

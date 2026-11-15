@@ -1,0 +1,94 @@
+{
+  "as_of": "2026-11-12",
+  "verdict": "SpaceX is now a listed growth story funded by Starlink and spent on AI. Q3 2026 (reported Oct 20) showed revenue up 161% to $14.6B and a $4.4B profit after a Q1 loss, with Starlink at 13.6M consumer subscribers. Most capital now goes to AI: one report puts $16.4B of the quarter's $19.6B capex in the AI segment, which also owns xAI, X and, since Aug 14, Cursor. Share supply is the near-term swing factor: the 180-day IPO lockup ends around Dec 8, although most insider shares unlocked earlier in a staggered schedule and Musk and major holders stay locked until June 2027. Starship V3 flew suborbitally on May 22; orbit and propellant transfer are the next milestones, and no date for them was confirmed when this note was written.",
+  "players": [],
+  "metrics": [
+    {
+      "id": "q3-revenue",
+      "group": "Results",
+      "label": "Q3 2026 revenue",
+      "value": "$14.6B",
+      "status": "calm",
+      "context": "+161% y/y · net income $4.4B",
+      "detail": "Third-quarter revenue of about $14.6B was up 161% from a year earlier, and net income was $4.4B against a loss a year before and a $4.27B net loss in Q1 2026. The jump includes the consolidated AI business, so it is not like-for-like with pre-merger SpaceX.",
+      "source": "CNBC, SpaceX Q3 2026 earnings live updates (Oct 20 2026)",
+      "as_of": "2026-10-20"
+    },
+    {
+      "id": "starlink-subs",
+      "group": "Starlink",
+      "label": "Starlink consumer subscribers",
+      "value": "13.6M",
+      "status": "calm",
+      "context": "+1.6M in Q3 · ARPU $69/month",
+      "detail": "Starlink ended Q3 with 13.6M consumer subscribers after adding 1.6M in the quarter, mostly in developed markets. Average revenue per consumer subscriber rose 5% sequentially to $69 a month, and direct-to-cell mobile reached 22M monthly users.",
+      "source": "Motley Fool, SpaceX Q3 2026 earnings call transcript (Oct 20 2026)",
+      "as_of": "2026-10-20"
+    },
+    {
+      "id": "connectivity-revenue",
+      "group": "Starlink",
+      "label": "Connectivity revenue",
+      "value": "$5.2B",
+      "status": "calm",
+      "context": "+69% y/y · consumer $3.1B, enterprise/government $2.1B",
+      "detail": "Connectivity (Starlink) revenue was about $5.2B in Q3, up 69%. Consumer brought about $3.1B and enterprise and government about $2.1B. Secondary report of the release; check the 10-Q for exact segment figures.",
+      "source": "Tesla North, SpaceX Q3 2026 results (Oct 20 2026)",
+      "as_of": "2026-10-20"
+    },
+    {
+      "id": "capex",
+      "group": "Capital",
+      "label": "Q3 capex",
+      "value": "$19.6B",
+      "status": "elevated",
+      "context": "about $16.4B in the AI segment",
+      "detail": "Quarterly capital spending was about $19.6B, and one report attributes $16.4B of it to the AI segment. The filings do not report xAI by that name; they describe an AI segment that was also the largest revenue contributor. Secondary report; check the 10-Q segment note.",
+      "source": "iTechGuides, SpaceX Q3 2026 analysis (Oct 2026)",
+      "as_of": "2026-10-20"
+    },
+    {
+      "id": "ipo",
+      "group": "Listing",
+      "label": "IPO",
+      "value": "$135",
+      "status": "neutral",
+      "context": "Nasdaq SPCX · first trade Jun 12 2026 · ~$75B raised",
+      "detail": "SpaceX priced its IPO at $135 a share and began trading on Nasdaq as SPCX on June 12, 2026, raising about $75B, reported as the largest IPO ever. It closed its first session near $161, about 19% above the offer.",
+      "source": "Built In, SpaceX launches IPO with $2T valuation (Jun 12 2026)",
+      "as_of": "2026-06-12"
+    }
+  ],
+  "signals": [
+    {
+      "id": "lockup",
+      "track": "Supply",
+      "label": "180-day lockup ends around Dec 8",
+      "status": "elevated",
+      "summary": "The standard lockup runs 180 days from the June 11 prospectus, ending around Dec 8 (some trackers say Dec 9). SpaceX used a nine-phase staggered schedule, so most insider shares unlocked earlier and December is largely a cleanup event. Musk and major holders stay locked until June 2027.",
+      "watch": "Volume and price around Dec 8–9, and any secondary offering or 10b5-1 sales filed before it.",
+      "source": "Crypto Briefing, SpaceX IPO lock-up schedule (2026); webull/Motley Fool on the June 2027 founder lockup",
+      "as_of": "2026-11-12"
+    },
+    {
+      "id": "starship",
+      "track": "Launch",
+      "label": "Starship V3 to orbit",
+      "status": "neutral",
+      "summary": "Starship V3 debuted on Flight 12 on May 22, 2026, a suborbital test from the new pad. It had engine glitches and the Super Heavy booster missed its soft splashdown, though SpaceX called the flight a success. Sustained orbit and in-space refuelling come next and gate Artemis 3.",
+      "watch": "A confirmed Flight 13 date, a first orbital V3 flight, and a propellant-transfer demonstration.",
+      "source": "Space.com, What's next for Starship V3 after its debut flight (May 2026)",
+      "as_of": "2026-05-23"
+    },
+    {
+      "id": "ai-spend",
+      "track": "AI",
+      "label": "AI spend versus AI revenue",
+      "status": "elevated",
+      "summary": "The AI segment (xAI, X and Cursor, bought for $60B in stock and closed Aug 14) takes most of the capex. OpenAI cuts Cursor's access to its models on Nov 12, which pushes Cursor toward Grok and makes model supply a competitive weapon.",
+      "watch": "Q4 AI-segment revenue against capex, and Cursor usage after the OpenAI cutoff.",
+      "source": "Yahoo Finance, SpaceX closes $60B Cursor deal (Aug 14 2026); Yahoo Finance, OpenAI ends Cursor access (Nov 2026)",
+      "as_of": "2026-11-12"
+    }
+  ]
+}

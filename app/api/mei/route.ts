@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchBtcDailyHistory } from "@/lib/btc/data/btcPrice";
 import { fetchBtcDailyVolume } from "@/lib/btc/data/binanceKlines";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@/lib/btc/calc/marketEmotion";
 import type { DailyPoint, MeiPoint, MeiResponse } from "@/lib/btc/types";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 function joinPriceVolume(
   closes: DailyPoint[],
@@ -28,7 +29,7 @@ function joinPriceVolume(
   }));
 }
 
-export async function GET() {
+export const GET = cachedRoute("mei", 3600, async () => {
   try {
     const [closes, volume] = await Promise.all([
       fetchBtcDailyHistory(),
@@ -93,4 +94,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});

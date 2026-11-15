@@ -14,6 +14,7 @@ interface Tick {
 const TICKS: Tick[] = [
   { sym: "BTC", value: 0, decimals: 2, change: "", changeDir: "up" },
   { sym: "ETH", value: 0, decimals: 2, change: "", changeDir: "up" },
+  { sym: "ZEC", value: 0, decimals: 2, change: "", changeDir: "up" },
   { sym: "DXY", value: 0, decimals: 2, change: "", changeDir: "down" },
   { sym: "US10Y", value: 4.34, decimals: 2, suffix: "%", change: "+3 bp", changeDir: "up" },
   { sym: "VIX", value: 14.82, decimals: 2, change: "", changeDir: "down" },
@@ -27,14 +28,14 @@ export function TickerStrip() {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade/ethusdt@trade");
+    const ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade/ethusdt@trade/zecusdt@trade");
     wsRef.current = ws;
     ws.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data) as { s: string; p: string };
         const px = parseFloat(msg.p);
         if (!Number.isFinite(px)) return;
-        const sym = msg.s === "BTCUSDT" ? "BTC" : msg.s === "ETHUSDT" ? "ETH" : null;
+        const sym = msg.s.endsWith("USDT") ? msg.s.slice(0, -4) : null;
         if (sym) setPrices((prev) => ({ ...prev, [sym]: px }));
       } catch {}
     };

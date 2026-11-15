@@ -10,7 +10,10 @@ interface BriefingData {
 
 async function fetchBriefing(signal?: AbortSignal): Promise<BriefingData> {
   const response = await fetch("/api/daily-briefing", { signal });
-  if (!response.ok) throw new Error(`${response.status}`);
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `request failed (${response.status})`);
+  }
   return response.json();
 }
 
@@ -104,7 +107,7 @@ export function DailyBriefing() {
         )}
         {error && !data && (
           <p className="mono text-[12px] text-[var(--accent-red)]">
-            Failed to generate briefing: {error}
+            No briefing: {error}
           </p>
         )}
         {data && (

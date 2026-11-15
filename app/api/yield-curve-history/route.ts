@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const FRED_URL = "https://api.stlouisfed.org/fred/series/observations";
 
@@ -39,7 +40,7 @@ function pickByDate(observations: { date: string; value: number }[], targetDate:
   return closest?.value ?? null;
 }
 
-export async function GET() {
+export const GET = cachedRoute("yield-curve-history", 3600, async () => {
   const today = new Date();
   const ago30 = new Date(Date.now() - 30 * 24 * 3600 * 1000);
   const ago90 = new Date(Date.now() - 90 * 24 * 3600 * 1000);
@@ -74,4 +75,4 @@ export async function GET() {
     past90,
     dates: { current: todayStr, past30: ago30Str, past90: ago90Str },
   });
-}
+}, { degraded: (b) => (b as { current: unknown[] }).current.length === 0 });

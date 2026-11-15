@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { cachedRoute } from "@/lib/routeCache";
 import { fetchNuclearMarketLive } from "@/lib/nuclearLive";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = cachedRoute("nuclear/market", 3600, async () => {
   try {
     const data = await fetchNuclearMarketLive();
     return NextResponse.json(data, {
@@ -17,4 +18,4 @@ export async function GET() {
       { status: 502 },
     );
   }
-}
+});
